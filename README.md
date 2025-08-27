@@ -2,7 +2,7 @@
 
 Gaugelab offers **advanced tooling** for tracing, evaluating, and monitoring autonomous AI agents with **groundbreaking formal verification** capabilities. It provides runtime data from agent-environment interactions for continuous learning, self-improvement, and **mathematically proven safety guarantees**.
 
-## =� Revolutionary Mesa-Optimization Detection
+## =� Revolutionary Mesa-Optimization Detection (Archived)
 
 **World's First Formally Verified Mesa-Optimization Detection System** - Gaugelab now includes breakthrough technology for detecting inner alignment failures in AI systems with mathematical proof certificates.
 
