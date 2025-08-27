@@ -9,7 +9,7 @@ from gaugelab.common.exceptions import InvalidJudgeModelError
 from gaugelab.judges import GaugelabJudge, LiteLLMJudge, TogetherJudge, MixtureOfJudges
 from gaugelab.constants import (
     TOGETHER_SUPPORTED_MODELS,
-    JUDGMENT_SUPPORTED_MODELS,
+    GAUGE_SUPPORTED_MODELS,
     ACCEPTABLE_MODELS,
 )
 
@@ -42,11 +42,11 @@ def create_judge(
     # Either string or List[str]
     if isinstance(model, list):
         for m in model:
-            if m in JUDGMENT_SUPPORTED_MODELS:
+            if m in GAUGE_SUPPORTED_MODELS:
                 raise NotImplementedError(
-                    """Judgment models are not yet supported for local scoring.
-                    Please either set the `use_judgment` flag to True or use 
-                    non-Judgment models."""
+                    """Gauge models are not yet supported for local scoring.
+                    Please either set the `use_gauge` flag to True or use 
+                    non-Gauge models."""
                 )
             if m not in ACCEPTABLE_MODELS:
                 raise InvalidJudgeModelError(f"Invalid judge model chosen: {m}")
@@ -56,11 +56,11 @@ def create_judge(
         return LiteLLMJudge(model=model), True
     if model in TOGETHER_SUPPORTED_MODELS:
         return TogetherJudge(model=model), True
-    if model in JUDGMENT_SUPPORTED_MODELS:
+    if model in GAUGE_SUPPORTED_MODELS:
         raise NotImplementedError(
-            """Judgment models are not yet supported for local scoring.
-            Please either set the `use_judgment` flag to True or use 
-            non-Judgment models."""
+            """Gauge models are not yet supported for local scoring.
+            Please either set the `use_gauge` flag to True or use 
+            non-Gauge models."""
         )
     else:
         raise InvalidJudgeModelError(f"Invalid judge model chosen: {model}")

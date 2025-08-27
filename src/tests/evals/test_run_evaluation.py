@@ -21,7 +21,7 @@ from gaugelab.data import Example, ScoringResult, ScorerData, Trace
 from gaugelab.evaluation_run import EvaluationRun
 from gaugelab.data.trace_run import TraceRun
 from gaugelab.scorers import FaithfulnessScorer
-from gaugelab.common.exceptions import JudgmentAPIError
+from gaugelab.common.exceptions import GaugeAPIError
 
 # Mock data for testing
 MOCK_API_KEY = "test_api_key"
@@ -37,7 +37,7 @@ def mock_evaluation_run():
         scorers=[FaithfulnessScorer(threshold=0.5)],
         project_name=MOCK_PROJECT_NAME,
         eval_name=MOCK_EVAL_NAME,
-        judgment_api_key=MOCK_API_KEY,
+        gauge_api_key=MOCK_API_KEY,
         organization_id=MOCK_ORG_ID,
     )
 
@@ -57,7 +57,7 @@ def mock_trace_run():
         scorers=[FaithfulnessScorer(threshold=0.5)],
         project_name=MOCK_PROJECT_NAME,
         eval_name=MOCK_EVAL_NAME,
-        judgment_api_key=MOCK_API_KEY,
+        gauge_api_key=MOCK_API_KEY,
         organization_id=MOCK_ORG_ID,
     )
 
@@ -111,7 +111,7 @@ class TestRunEvaluation:
         mock_post.return_value.ok = False
         mock_post.return_value.json.return_value = {"detail": "Error message"}
 
-        with pytest.raises(JudgmentAPIError):
+        with pytest.raises(GaugeAPIError):
             execute_api_eval(mock_evaluation_run)
 
     def test_merge_results(self, mock_scoring_results):
@@ -149,7 +149,7 @@ class TestRunEvaluation:
         mock_post.return_value.ok = False
         mock_post.return_value.json.return_value = {"detail": "Error message"}
 
-        with pytest.raises(JudgmentAPIError):
+        with pytest.raises(GaugeAPIError):
             check_experiment_type(
                 MOCK_EVAL_NAME, MOCK_PROJECT_NAME, MOCK_API_KEY, MOCK_ORG_ID, False
             )

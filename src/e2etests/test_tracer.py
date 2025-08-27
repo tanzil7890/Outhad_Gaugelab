@@ -19,7 +19,7 @@ from gaugelab.data import Example
 # Initialize the tracer and clients
 # Ensure relevant API keys (OPENAI_API_KEY, ANTHROPIC_API_KEY, TOGETHER_API_KEY, GOOGLE_API_KEY) are set
 PROJECT_NAME = "e2e-tests-gkzqvtrbwnyl"
-judgment = Tracer(project_name=PROJECT_NAME)
+gauge = Tracer(project_name=PROJECT_NAME)
 
 # Wrap clients
 openai_client = wrap(OpenAI())
@@ -147,10 +147,10 @@ def validate_trace_tokens(trace, fail_on_missing=True):
 # --- Test Functions ---
 
 
-@judgment.observe(span_type="tool")
+@gauge.observe(span_type="tool")
 @pytest.mark.asyncio
 async def make_upper(input: str) -> str:
-    """Convert input to uppercase and evaluate using judgment API.
+    """Convert input to uppercase and evaluate using gauge API.
 
     Args:
         input: The input string to convert
@@ -168,7 +168,7 @@ async def make_upper(input: str) -> str:
         expected_output="We offer a 30-day full refund at no extra cost.",
     )
 
-    judgment.async_evaluate(
+    gauge.async_evaluate(
         scorers=[FaithfulnessScorer(threshold=0.5)],
         example=example,
         model="gpt-4.1-mini",
@@ -177,7 +177,7 @@ async def make_upper(input: str) -> str:
     return output
 
 
-@judgment.observe(span_type="tool")
+@gauge.observe(span_type="tool")
 @pytest.mark.asyncio
 async def make_lower(input):
     output = input.lower()
@@ -191,7 +191,7 @@ async def make_lower(input):
         additional_metadata={"difficulty": "medium"},
     )
 
-    judgment.async_evaluate(
+    gauge.async_evaluate(
         scorers=[AnswerRelevancyScorer(threshold=0.5)],
         example=example,
         model="gpt-4.1-mini",
@@ -199,13 +199,13 @@ async def make_lower(input):
     return output
 
 
-@judgment.observe(span_type="llm")
+@gauge.observe(span_type="llm")
 def llm_call(input):
     time.sleep(1.3)
     return "We have a 30 day full refund policy on shoes."
 
 
-@judgment.observe(span_type="tool")
+@gauge.observe(span_type="tool")
 @pytest.mark.asyncio
 async def answer_user_question(input):
     output = llm_call(input)
@@ -219,7 +219,7 @@ async def answer_user_question(input):
         expected_output="We offer a 30-day full refund at no extra cost.",
     )
 
-    judgment.async_evaluate(
+    gauge.async_evaluate(
         scorers=[AnswerRelevancyScorer(threshold=0.5)],
         example=example,
         model="gpt-4.1-mini",
@@ -227,7 +227,7 @@ async def answer_user_question(input):
     return output
 
 
-@judgment.observe(span_type="tool")
+@gauge.observe(span_type="tool")
 @pytest.mark.asyncio
 async def make_poem(input: str) -> str:
     """Generate a poem using both Anthropic and OpenAI APIs.
@@ -248,7 +248,7 @@ async def make_poem(input: str) -> str:
 
         example = Example(input=input, actual_output=anthropic_result)
 
-        judgment.async_evaluate(
+        gauge.async_evaluate(
             scorers=[AnswerRelevancyScorer(threshold=0.5)],
             example=example,
             model="gpt-4.1-mini",
@@ -316,7 +316,7 @@ async def make_poem_with_async_clients(input: str) -> str:
             anthropic_result = "<Anthropic Error>"
         # --- End Important ---
 
-        judgment.async_evaluate(
+        gauge.async_evaluate(
             scorers=[AnswerRelevancyScorer(threshold=0.5)],
             input=input,
             actual_output=anthropic_result,
@@ -334,8 +334,8 @@ async def make_poem_with_async_clients(input: str) -> str:
 def trace_manager_client():
     """Fixture to initialize TraceManagerClient."""
     return TraceManagerClient(
-        judgment_api_key=os.getenv("JUDGMENT_API_KEY"),
-        organization_id=os.getenv("JUDGMENT_ORG_ID"),
+        gauge_api_key=os.getenv("GAUGE_API_KEY"),
+        organization_id=os.getenv("GAUGE_ORG_ID"),
     )
 
 
@@ -346,7 +346,7 @@ def test_input():
 
 
 @pytest.mark.asyncio
-@judgment.observe(
+@gauge.observe(
     name="test_evaluation_mixed_trace",
 )
 async def test_evaluation_mixed(test_input):
@@ -360,7 +360,7 @@ async def test_evaluation_mixed(test_input):
     await asyncio.sleep(1.5)
 
     # --- Attempt to assert based on current trace state ---
-    trace = judgment.get_current_trace()
+    trace = gauge.get_current_trace()
     validate_trace_tokens(trace)
 
     # Let the decorator handle the actual saving when the function returns
@@ -368,7 +368,7 @@ async def test_evaluation_mixed(test_input):
 
 
 @pytest.mark.asyncio
-@judgment.observe(
+@gauge.observe(
     name="test_evaluation_mixed_async_trace",
 )
 async def test_evaluation_mixed_async(test_input):
@@ -382,7 +382,7 @@ async def test_evaluation_mixed_async(test_input):
     await asyncio.sleep(1.5)
 
     # --- Attempt to assert based on current trace state ---
-    trace = judgment.get_current_trace()
+    trace = gauge.get_current_trace()
     validate_trace_tokens(trace)
 
     # Let the decorator handle the actual saving when the function returns
@@ -390,7 +390,7 @@ async def test_evaluation_mixed_async(test_input):
 
 
 @pytest.mark.asyncio
-@judgment.observe(
+@gauge.observe(
     name="test_openai_response_api_trace",
 )
 async def test_openai_response_api():
@@ -426,11 +426,11 @@ async def test_openai_response_api():
 
     print(f"\nResponses API Response: {content_resp}")
 
-    trace = judgment.get_current_trace()
+    trace = gauge.get_current_trace()
     validate_trace_tokens(trace)
 
 
-@judgment.observe(name="custom_root_function", span_type="root")
+@gauge.observe(name="custom_root_function", span_type="root")
 @pytest.mark.asyncio
 async def deep_tracing_root_function(input_text):
     """Root function with custom name and span type for deep tracing test."""
@@ -452,7 +452,7 @@ async def deep_tracing_root_function(input_text):
     return f"Root results: {result1}, {result2}, {result3}"
 
 
-@judgment.observe(name="custom_level2", span_type="level2")
+@gauge.observe(name="custom_level2", span_type="level2")
 @pytest.mark.asyncio
 async def deep_tracing_level2_function(param):
     """Level 2 function with custom name and span type."""
@@ -464,7 +464,7 @@ async def deep_tracing_level2_function(param):
     return f"level2:{result}"
 
 
-@judgment.observe(name="custom_level2_parallel1", span_type="parallel")
+@gauge.observe(name="custom_level2_parallel1", span_type="parallel")
 @pytest.mark.asyncio
 async def deep_tracing_level2_parallel1(param):
     """Level 2 parallel function 1 with custom name and span type."""
@@ -482,7 +482,7 @@ async def deep_tracing_level2_parallel1(param):
     return f"level2_parallel1:{result1},{result2}"
 
 
-@judgment.observe(name="custom_level2_parallel2", span_type="parallel")
+@gauge.observe(name="custom_level2_parallel2", span_type="parallel")
 @pytest.mark.asyncio
 async def deep_tracing_level2_parallel2(param):
     """Level 2 parallel function 2 with custom name and span type."""
@@ -495,7 +495,7 @@ async def deep_tracing_level2_parallel2(param):
 
 
 # Level 3 functions
-@judgment.observe(name="custom_level3", span_type="level3")
+@gauge.observe(name="custom_level3", span_type="level3")
 @pytest.mark.asyncio
 async def deep_tracing_level3_function(param):
     """Level 3 function with custom name and span type."""
@@ -507,7 +507,7 @@ async def deep_tracing_level3_function(param):
     return f"level3:{result}"
 
 
-@judgment.observe(name="custom_level3_parallel1", span_type="parallel")
+@gauge.observe(name="custom_level3_parallel1", span_type="parallel")
 @pytest.mark.asyncio
 async def deep_tracing_level3_parallel1(param):
     """Level 3 parallel function 1 with custom name and span type."""
@@ -521,7 +521,7 @@ async def deep_tracing_level3_parallel1(param):
     return f"level3_p1:{result_a},{result_b},{result_c}"
 
 
-@judgment.observe(name="custom_level3_parallel2", span_type="parallel")
+@gauge.observe(name="custom_level3_parallel2", span_type="parallel")
 @pytest.mark.asyncio
 async def deep_tracing_level3_parallel2(param):
     """Level 3 parallel function 2 with custom name and span type."""
@@ -534,7 +534,7 @@ async def deep_tracing_level3_parallel2(param):
 
 
 # Level 4 functions
-@judgment.observe(name="custom_level4", span_type="level4")
+@gauge.observe(name="custom_level4", span_type="level4")
 @pytest.mark.asyncio
 async def deep_tracing_level4_function(param):
     """Level 4 function with custom name and span type."""
@@ -542,7 +542,7 @@ async def deep_tracing_level4_function(param):
     return f"level4:{param}"
 
 
-@judgment.observe(name="custom_level4_deep", span_type="level4_deep")
+@gauge.observe(name="custom_level4_deep", span_type="level4_deep")
 @pytest.mark.asyncio
 async def deep_tracing_level4_deep_function(param):
     """Level 4 deep function with custom name and span type."""
@@ -559,7 +559,7 @@ async def deep_tracing_level4_deep_function(param):
 
 
 # Level 5 function
-@judgment.observe(name="custom_level5", span_type="level5")
+@gauge.observe(name="custom_level5", span_type="level5")
 @pytest.mark.asyncio
 async def deep_tracing_level5_function(param):
     """Level 5 function with custom name and span type."""
@@ -568,7 +568,7 @@ async def deep_tracing_level5_function(param):
 
 
 # Recursive function to test deep tracing with recursion
-@judgment.observe(name="custom_fib", span_type="recursive")
+@gauge.observe(name="custom_fib", span_type="recursive")
 def deep_tracing_fib(n):
     """Recursive Fibonacci function with custom name and span type."""
     if n <= 1:
@@ -578,7 +578,7 @@ def deep_tracing_fib(n):
 
 
 @pytest.mark.asyncio
-@judgment.observe(
+@gauge.observe(
     name="test_deep_tracing_with_custom_spans_trace",
 )
 async def test_deep_tracing_with_custom_spans():
@@ -593,7 +593,7 @@ async def test_deep_tracing_with_custom_spans():
 
     # Set the project name for the root function's trace
     # First, update the decorator to include the project name
-    deep_tracing_root_function.__judgment_observe_kwargs = {
+    deep_tracing_root_function.__gauge_observe_kwargs = {
         "project_name": PROJECT_NAME,
     }
 
@@ -633,7 +633,7 @@ async def test_deep_tracing_with_custom_spans():
 
 
 @pytest.mark.asyncio
-@judgment.observe(
+@gauge.observe(
     name="test_token_counting_trace",
 )
 async def test_token_counting():
@@ -716,7 +716,7 @@ async def test_token_counting():
     await asyncio.sleep(2.0)
 
     # --- Attempt to assert based on current trace state ---
-    trace = judgment.get_current_trace()
+    trace = gauge.get_current_trace()
     validate_trace_tokens(trace)
 
     # Let the decorator handle the actual saving when the function returns
@@ -729,7 +729,7 @@ async def test_token_counting():
 
 
 @pytest.mark.asyncio
-@judgment.observe(
+@gauge.observe(
     name="test_anthropic_async_streaming_usage_trace",
 )
 async def test_anthropic_async_streaming_usage(test_input):
@@ -738,7 +738,7 @@ async def test_anthropic_async_streaming_usage(test_input):
         pytest.skip("Anthropic client not initialized.")
     print(f"\n{'=' * 20} Starting Anthropic Streaming Usage Test {'=' * 20}")
 
-    @judgment.observe(
+    @gauge.observe(
         name="anthropic_stream_func",
     )
     async def run_anthropic_stream(prompt):
@@ -766,7 +766,7 @@ async def test_anthropic_async_streaming_usage(test_input):
     await asyncio.sleep(1.5)
 
     # --- Attempt to assert based on current trace state ---
-    trace = judgment.get_current_trace()
+    trace = gauge.get_current_trace()
     validate_trace_tokens(trace)
 
     # Let the decorator handle the actual saving when the function returns
@@ -775,7 +775,7 @@ async def test_anthropic_async_streaming_usage(test_input):
 
 
 @pytest.mark.asyncio
-@judgment.observe(
+@gauge.observe(
     name="test_together_async_streaming_usage_trace",
 )
 async def test_together_async_streaming_usage(test_input):
@@ -784,7 +784,7 @@ async def test_together_async_streaming_usage(test_input):
         pytest.skip("Together client not initialized. Set TOGETHER_API_KEY.")
     print(f"\n{'=' * 20} Starting Together Streaming Usage Test {'=' * 20}")
 
-    @judgment.observe(
+    @gauge.observe(
         name="together_stream_func",
     )
     async def run_together_stream(prompt):
@@ -807,7 +807,7 @@ async def test_together_async_streaming_usage(test_input):
     await asyncio.sleep(1.5)
 
     # --- Attempt to assert based on current trace state ---
-    trace = judgment.get_current_trace()
+    trace = gauge.get_current_trace()
     validate_trace_tokens(trace)
 
     # Let the decorator handle the actual saving when the function returns
@@ -816,7 +816,7 @@ async def test_together_async_streaming_usage(test_input):
 
 
 @pytest.mark.asyncio
-@judgment.observe(
+@gauge.observe(
     name="test_google_response_api",
 )
 async def test_google_response_api():
@@ -840,5 +840,5 @@ async def test_google_response_api():
     # Add delay before validating trace tokens to allow spans to be properly populated
     await asyncio.sleep(1.5)
 
-    trace = judgment.get_current_trace()
+    trace = gauge.get_current_trace()
     validate_trace_tokens(trace)

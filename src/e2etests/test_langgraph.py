@@ -12,8 +12,8 @@ from gaugelab.common.tracer import Tracer, TraceManagerClient, TraceClient
 from gaugelab.integrations.langgraph import GaugelabCallbackHandler
 
 # --- Test Configuration ---
-API_KEY = os.getenv("JUDGMENT_API_KEY")
-ORG_ID = os.getenv("JUDGMENT_ORG_ID")
+API_KEY = os.getenv("GAUGE_API_KEY")
+ORG_ID = os.getenv("GAUGE_ORG_ID")
 
 # --- Shared Graph Definition ---
 llm = ChatOpenAI(model="gpt-4.1-mini", temperature=0)
@@ -71,10 +71,10 @@ def fetch_and_validate_trace(trace_id: str, expected_project: str):
     print(f"\nFetching trace ID: {trace_id} for project: {expected_project}")
     if not API_KEY or not ORG_ID:
         pytest.skip(
-            "JUDGMENT_API_KEY or JUDGMENT_ORG_ID not set, skipping trace fetch."
+            "GAUGE_API_KEY or GAUGE_ORG_ID not set, skipping trace fetch."
         )
 
-    client = TraceManagerClient(judgment_api_key=API_KEY, organization_id=ORG_ID)
+    client = TraceManagerClient(gauge_api_key=API_KEY, organization_id=ORG_ID)
     try:
         trace_data = client.fetch_trace(trace_id=trace_id)
         print("Trace data fetched successfully.")

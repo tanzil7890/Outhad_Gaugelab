@@ -4,24 +4,24 @@ from gaugelab.utils.requests import requests
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from gaugelab.common.logger import gaugelab_logger
 from gaugelab.constants import (
-    JUDGMENT_DATASETS_PUSH_API_URL,
-    JUDGMENT_DATASETS_APPEND_EXAMPLES_API_URL,
-    JUDGMENT_DATASETS_PULL_API_URL,
-    JUDGMENT_DATASETS_PROJECT_STATS_API_URL,
-    JUDGMENT_DATASETS_DELETE_API_URL,
-    JUDGMENT_DATASETS_EXPORT_JSONL_API_URL,
+    GAUGE_DATASETS_PUSH_API_URL,
+    GAUGE_DATASETS_APPEND_EXAMPLES_API_URL,
+    GAUGE_DATASETS_PULL_API_URL,
+    GAUGE_DATASETS_PROJECT_STATS_API_URL,
+    GAUGE_DATASETS_DELETE_API_URL,
+    GAUGE_DATASETS_EXPORT_JSONL_API_URL,
 )
 from gaugelab.data import Example, Trace
 from gaugelab.data.datasets import EvalDataset
 
 
 class EvalDatasetClient:
-    def __init__(self, judgment_api_key: str, organization_id: str):
-        self.judgment_api_key = judgment_api_key
+    def __init__(self, gauge_api_key: str, organization_id: str):
+        self.gauge_api_key = gauge_api_key
         self.organization_id = organization_id
 
     def create_dataset(self) -> EvalDataset:
-        return EvalDataset(judgment_api_key=self.judgment_api_key)
+        return EvalDataset(gauge_api_key=self.gauge_api_key)
 
     def push(
         self,
@@ -33,7 +33,7 @@ class EvalDatasetClient:
         if overwrite:
             gaugelab_logger.warning(f"Overwrite enabled for alias '{alias}'")
         """
-        Pushes the dataset to Judgment platform
+        Pushes the dataset to Gauge platform
 
         Mock request:
         dataset = {
@@ -52,7 +52,7 @@ class EvalDatasetClient:
             transient=False,
         ) as progress:
             task_id = progress.add_task(
-                f"Pushing [rgb(106,0,255)]'{alias}' to Judgment...",
+                f"Pushing [rgb(106,0,255)]'{alias}' to Gauge...",
                 total=100,
             )
             content = {
@@ -64,11 +64,11 @@ class EvalDatasetClient:
             }
             try:
                 response = requests.post(
-                    JUDGMENT_DATASETS_PUSH_API_URL,
+                    GAUGE_DATASETS_PUSH_API_URL,
                     json=content,
                     headers={
                         "Content-Type": "application/json",
-                        "Authorization": f"Bearer {self.judgment_api_key}",
+                        "Authorization": f"Bearer {self.gauge_api_key}",
                         "X-Organization-Id": self.organization_id,
                     },
                     verify=True,
@@ -100,7 +100,7 @@ class EvalDatasetClient:
         self, alias: str, examples: List[Example], project_name: str
     ) -> bool:
         """
-        Appends the dataset to Judgment platform
+        Appends the dataset to Gauge platform
 
         Mock request:
         dataset = {
@@ -119,7 +119,7 @@ class EvalDatasetClient:
             transient=False,
         ) as progress:
             task_id = progress.add_task(
-                f"Appending [rgb(106,0,255)]'{alias}' to Judgment...",
+                f"Appending [rgb(106,0,255)]'{alias}' to Gauge...",
                 total=100,
             )
             content = {
@@ -129,11 +129,11 @@ class EvalDatasetClient:
             }
             try:
                 response = requests.post(
-                    JUDGMENT_DATASETS_APPEND_EXAMPLES_API_URL,
+                    GAUGE_DATASETS_APPEND_EXAMPLES_API_URL,
                     json=content,
                     headers={
                         "Content-Type": "application/json",
-                        "Authorization": f"Bearer {self.judgment_api_key}",
+                        "Authorization": f"Bearer {self.gauge_api_key}",
                         "X-Organization-Id": self.organization_id,
                     },
                     verify=True,
@@ -160,7 +160,7 @@ class EvalDatasetClient:
 
     def pull(self, alias: str, project_name: str) -> EvalDataset:
         """
-        Pulls the dataset from Judgment platform
+        Pulls the dataset from Gauge platform
 
         Mock request:
         {
@@ -174,7 +174,7 @@ class EvalDatasetClient:
             "_id": "..."  # ID of the dataset
         }
         """
-        # Make a POST request to the Judgment API to get the dataset
+        # Make a POST request to the Gauge API to get the dataset
         dataset = self.create_dataset()
 
         with Progress(
@@ -183,18 +183,18 @@ class EvalDatasetClient:
             transient=False,
         ) as progress:
             task_id = progress.add_task(
-                f"Pulling [rgb(106,0,255)]'{alias}'[/rgb(106,0,255)] from Judgment...",
+                f"Pulling [rgb(106,0,255)]'{alias}'[/rgb(106,0,255)] from Gauge...",
                 total=100,
             )
             request_body = {"dataset_alias": alias, "project_name": project_name}
 
             try:
                 response = requests.post(
-                    JUDGMENT_DATASETS_PULL_API_URL,
+                    GAUGE_DATASETS_PULL_API_URL,
                     json=request_body,
                     headers={
                         "Content-Type": "application/json",
-                        "Authorization": f"Bearer {self.judgment_api_key}",
+                        "Authorization": f"Bearer {self.gauge_api_key}",
                         "X-Organization-Id": self.organization_id,
                     },
                     verify=True,
@@ -223,18 +223,18 @@ class EvalDatasetClient:
             transient=False,
         ) as progress:
             progress.add_task(
-                f"Deleting [rgb(106,0,255)]'{alias}'[/rgb(106,0,255)] from Judgment...",
+                f"Deleting [rgb(106,0,255)]'{alias}'[/rgb(106,0,255)] from Gauge...",
                 total=100,
             )
             request_body = {"dataset_alias": alias, "project_name": project_name}
 
             try:
                 response = requests.post(
-                    JUDGMENT_DATASETS_DELETE_API_URL,
+                    GAUGE_DATASETS_DELETE_API_URL,
                     json=request_body,
                     headers={
                         "Content-Type": "application/json",
-                        "Authorization": f"Bearer {self.judgment_api_key}",
+                        "Authorization": f"Bearer {self.gauge_api_key}",
                         "X-Organization-Id": self.organization_id,
                     },
                     verify=True,
@@ -248,7 +248,7 @@ class EvalDatasetClient:
 
     def pull_project_dataset_stats(self, project_name: str) -> dict:
         """
-        Pulls the project datasets stats from Judgment platform
+        Pulls the project datasets stats from Gauge platform
 
         Mock request:
         {
@@ -261,7 +261,7 @@ class EvalDatasetClient:
             ...
         }
         """
-        # Make a POST request to the Judgment API to get the dataset
+        # Make a POST request to the Gauge API to get the dataset
 
         with Progress(
             SpinnerColumn(style="rgb(106,0,255)"),
@@ -269,18 +269,18 @@ class EvalDatasetClient:
             transient=False,
         ) as progress:
             task_id = progress.add_task(
-                "Pulling [rgb(106,0,255)]' datasets'[/rgb(106,0,255)] from Judgment...",
+                "Pulling [rgb(106,0,255)]' datasets'[/rgb(106,0,255)] from Gauge...",
                 total=100,
             )
             request_body = {"project_name": project_name}
 
             try:
                 response = requests.post(
-                    JUDGMENT_DATASETS_PROJECT_STATS_API_URL,
+                    GAUGE_DATASETS_PROJECT_STATS_API_URL,
                     json=request_body,
                     headers={
                         "Content-Type": "application/json",
-                        "Authorization": f"Bearer {self.judgment_api_key}",
+                        "Authorization": f"Bearer {self.gauge_api_key}",
                         "X-Organization-Id": self.organization_id,
                     },
                     verify=True,
@@ -300,7 +300,7 @@ class EvalDatasetClient:
             return payload
 
     def export_jsonl(self, alias: str, project_name: str) -> Response:
-        """Export dataset in JSONL format from Judgment platform"""
+        """Export dataset in JSONL format from Gauge platform"""
         with Progress(
             SpinnerColumn(style="rgb(106,0,255)"),
             TextColumn("[progress.description]{task.description}"),
@@ -312,11 +312,11 @@ class EvalDatasetClient:
             )
             try:
                 response = requests.post(
-                    JUDGMENT_DATASETS_EXPORT_JSONL_API_URL,
+                    GAUGE_DATASETS_EXPORT_JSONL_API_URL,
                     json={"dataset_alias": alias, "project_name": project_name},
                     headers={
                         "Content-Type": "application/json",
-                        "Authorization": f"Bearer {self.judgment_api_key}",
+                        "Authorization": f"Bearer {self.gauge_api_key}",
                         "X-Organization-Id": self.organization_id,
                     },
                     stream=True,

@@ -9,7 +9,7 @@ def test():
         json={},
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {os.getenv('JUDGMENT_API_KEY')}",
+            "Authorization": f"Bearer {os.getenv('GAUGE_API_KEY')}",
         },
     )
     print(response.json())
@@ -21,7 +21,7 @@ def test2():
         json={"organization_name": "test_organization2"},
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {os.getenv('JUDGMENT_API_KEY')}",
+            "Authorization": f"Bearer {os.getenv('GAUGE_API_KEY')}",
         },
     )
     print(response.json())

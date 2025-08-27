@@ -9,7 +9,7 @@ import string
 import logging
 from dotenv import load_dotenv
 
-from gaugelab.judgment_client import JudgmentClient
+from gaugelab.gauge_client import GaugeClient
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -19,12 +19,12 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # Constants
-SERVER_URL = os.getenv("JUDGMENT_API_URL", "http://localhost:8000")
-API_KEY = os.getenv("JUDGMENT_API_KEY")
-ORGANIZATION_ID = os.getenv("JUDGMENT_ORG_ID")
+SERVER_URL = os.getenv("GAUGE_API_URL", "http://localhost:8000")
+API_KEY = os.getenv("GAUGE_API_KEY")
+ORGANIZATION_ID = os.getenv("GAUGE_ORG_ID")
 
 if not API_KEY:
-    pytest.skip("JUDGMENT_API_KEY not set", allow_module_level=True)
+    pytest.skip("GAUGE_API_KEY not set", allow_module_level=True)
 
 
 @pytest.fixture(scope="session")
@@ -35,10 +35,10 @@ def project_name():
 
 
 @pytest.fixture(scope="session")
-def client(project_name: str) -> JudgmentClient:
-    """Create a single JudgmentClient instance for all tests."""
+def client(project_name: str) -> GaugeClient:
+    """Create a single GaugeClient instance for all tests."""
     # Setup
-    client = JudgmentClient(api_key=API_KEY, organization_id=ORGANIZATION_ID)
+    client = GaugeClient(api_key=API_KEY, organization_id=ORGANIZATION_ID)
     yield client
     # Teardown
     # Add more projects to delete as needed

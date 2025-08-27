@@ -41,14 +41,14 @@ def get_referenced_schemas(obj: Any) -> Generator[str, None, None]:
             ref = value["$ref"]
             resolved = resolve_ref(ref)
             assert isinstance(ref, str), "Reference must be a string"
-            # Strip the _JudgmentType suffix if it exists to get the original schema name
-            if resolved.endswith("_JudgmentType"):
-                resolved = resolved[: -len("_JudgmentType")]
+            # Strip the _GaugeType suffix if it exists to get the original schema name
+            if resolved.endswith("_GaugeType"):
+                resolved = resolved[: -len("_GaugeType")]
             yield resolved
 
 
 def transform_schema_refs(obj: Any) -> Any:
-    """Transform all $ref values in a schema to use the _JudgmentType suffix"""
+    """Transform all $ref values in a schema to use the _GaugeType suffix"""
     if isinstance(obj, dict):
         result = {}
         for key, value in obj.items():
@@ -59,7 +59,7 @@ def transform_schema_refs(obj: Any) -> Any:
             ):
                 # Update the reference to use the suffixed name
                 original_name = resolve_ref(value)
-                suffixed_name = f"{original_name}_JudgmentType"
+                suffixed_name = f"{original_name}_GaugeType"
                 result[key] = f"#/components/schemas/{suffixed_name}"
             else:
                 result[key] = transform_schema_refs(value)
@@ -94,7 +94,7 @@ def filter_schemas() -> Dict[str, Any]:
             # Transform the schema to update any internal references
             original_schema = SPEC["components"]["schemas"][original_schema_name]
             transformed_schema = transform_schema_refs(original_schema)
-            suffixed_name = f"{original_schema_name}_JudgmentType"
+            suffixed_name = f"{original_schema_name}_GaugeType"
             to_commit[suffixed_name] = transformed_schema
             processed_original_names.add(original_schema_name)
 

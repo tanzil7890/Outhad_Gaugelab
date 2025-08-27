@@ -1,5 +1,5 @@
-from gaugelab.data.judgment_types import ToolJudgmentType
+from gaugelab.data.gauge_types import ToolGaugeType
 
 
-class Tool(ToolJudgmentType):
+class Tool(ToolGaugeType):
     pass

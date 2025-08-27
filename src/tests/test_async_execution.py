@@ -3,9 +3,9 @@ import pytest
 from unittest.mock import patch
 
 from gaugelab.data import Example, ScoringResult
-from gaugelab.judgment_client import JudgmentClient
+from gaugelab.gauge_client import GaugeClient
 from gaugelab.scorers import APIScorerConfig
-from gaugelab.common.exceptions import JudgmentAPIError
+from gaugelab.common.exceptions import GaugeAPIError
 from gaugelab.constants import APIScorerType
 
 
@@ -39,26 +39,26 @@ def scorers():
 
 
 @pytest.fixture
-def judgment_client():
-    """Return a mocked JudgmentClient."""
+def gauge_client():
+    """Return a mocked GaugeClient."""
     with patch(
-        "gaugelab.judgment_client.validate_api_key", return_value=(True, "valid")
+        "gaugelab.gauge_client.validate_api_key", return_value=(True, "valid")
     ):
-        client = JudgmentClient(api_key="fake_key", organization_id="fake_org")
+        client = GaugeClient(api_key="fake_key", organization_id="fake_org")
         return client
 
 
 @pytest.mark.asyncio
-async def test_async_execution_returns_task(judgment_client, examples, scorers):
+async def test_async_execution_returns_task(gauge_client, examples, scorers):
     """Test that run_evaluation with async_execution=True returns a Task."""
     # Patch the run_eval function to return a Task
-    with patch("gaugelab.judgment_client.run_eval") as mock_run_eval:
+    with patch("gaugelab.gauge_client.run_eval") as mock_run_eval:
         # Create a mock task
         mock_task = asyncio.create_task(asyncio.sleep(0))
         mock_run_eval.return_value = mock_task
 
         # Call run_evaluation with async_execution=True
-        result = judgment_client.run_evaluation(
+        result = gauge_client.run_evaluation(
             examples=examples, scorers=scorers, async_execution=True
         )
 
@@ -72,7 +72,7 @@ async def test_async_execution_returns_task(judgment_client, examples, scorers):
 
 
 @pytest.mark.asyncio
-async def test_async_execution_result_awaitable(judgment_client, examples, scorers):
+async def test_async_execution_result_awaitable(gauge_client, examples, scorers):
     """Test that the Task returned by run_evaluation can be awaited and returns results."""
     # Create a mock ScoringResult to be returned by the task
     mock_result = [
@@ -92,12 +92,12 @@ async def test_async_execution_result_awaitable(judgment_client, examples, score
         return mock_result
 
     # Patch run_eval to return a real task with our mock workflow
-    with patch("gaugelab.judgment_client.run_eval") as mock_run_eval:
+    with patch("gaugelab.gauge_client.run_eval") as mock_run_eval:
         mock_task = asyncio.create_task(mock_async_workflow())
         mock_run_eval.return_value = mock_task
 
         # Call run_evaluation with async_execution=True
-        task = judgment_client.run_evaluation(
+        task = gauge_client.run_evaluation(
             examples=examples, scorers=scorers, async_execution=True
         )
 
@@ -107,26 +107,26 @@ async def test_async_execution_result_awaitable(judgment_client, examples, score
 
 
 @pytest.mark.asyncio
-async def test_async_execution_error_handling(judgment_client, examples, scorers):
+async def test_async_execution_error_handling(gauge_client, examples, scorers):
     """Test that errors in async execution are properly propagated."""
 
     # Create an async function that raises an error
     async def mock_async_error():
         await asyncio.sleep(0.1)  # Small delay
-        raise JudgmentAPIError("Test API error")
+        raise GaugeAPIError("Test API error")
 
     # Patch run_eval to return a task that will raise an error
-    with patch("gaugelab.judgment_client.run_eval") as mock_run_eval:
+    with patch("gaugelab.gauge_client.run_eval") as mock_run_eval:
         mock_task = asyncio.create_task(mock_async_error())
         mock_run_eval.return_value = mock_task
 
         # Call run_evaluation with async_execution=True
-        task = judgment_client.run_evaluation(
+        task = gauge_client.run_evaluation(
             examples=examples, scorers=scorers, async_execution=True
         )
 
         # Await the task and check that the error is propagated
-        with pytest.raises(JudgmentAPIError) as excinfo:
+        with pytest.raises(GaugeAPIError) as excinfo:
             await task
 
         assert "Test API error" in str(excinfo.value)

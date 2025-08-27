@@ -190,7 +190,7 @@ def test_invalid_api_key_logs_warning(caplog):
         Tracer(api_key="invalid_key", organization_id="test_org")
     # Now assert the warning message is in the logs
     assert any(
-        "Issue with passed in Judgment API key" in message
+        "Issue with passed in Gauge API key" in message
         for message in caplog.messages
     )
 

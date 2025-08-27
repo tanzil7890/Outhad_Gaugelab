@@ -51,13 +51,13 @@ from google import genai
 
 # Local application/library-specific imports
 from gaugelab.constants import (
-    JUDGMENT_TRACES_ADD_ANNOTATION_API_URL,
-    JUDGMENT_TRACES_UPSERT_API_URL,
-    JUDGMENT_TRACES_FETCH_API_URL,
-    JUDGMENT_TRACES_DELETE_API_URL,
-    JUDGMENT_PROJECT_DELETE_API_URL,
-    JUDGMENT_TRACES_SPANS_BATCH_API_URL,
-    JUDGMENT_TRACES_EVALUATION_RUNS_BATCH_API_URL,
+    GAUGE_TRACES_ADD_ANNOTATION_API_URL,
+    GAUGE_TRACES_UPSERT_API_URL,
+    GAUGE_TRACES_FETCH_API_URL,
+    GAUGE_TRACES_DELETE_API_URL,
+    GAUGE_PROJECT_DELETE_API_URL,
+    GAUGE_TRACES_SPANS_BATCH_API_URL,
+    GAUGE_TRACES_EVALUATION_RUNS_BATCH_API_URL,
 )
 from gaugelab.data import Example, Trace, TraceSpan, TraceUsage
 from gaugelab.scorers import APIScorerConfig, BaseScorer
@@ -113,7 +113,7 @@ class TraceAnnotation:
 
 class TraceManagerClient:
     """
-    Client for handling trace endpoints with the Judgment API
+    Client for handling trace endpoints with the Gauge API
 
 
     Operations include:
@@ -124,11 +124,11 @@ class TraceManagerClient:
 
     def __init__(
         self,
-        judgment_api_key: str,
+        gauge_api_key: str,
         organization_id: str,
         tracer: Optional["Tracer"] = None,
     ):
-        self.judgment_api_key = judgment_api_key
+        self.gauge_api_key = gauge_api_key
         self.organization_id = organization_id
         self.tracer = tracer
 
@@ -137,13 +137,13 @@ class TraceManagerClient:
         Fetch a trace by its id
         """
         response = requests.post(
-            JUDGMENT_TRACES_FETCH_API_URL,
+            GAUGE_TRACES_FETCH_API_URL,
             json={
                 "trace_id": trace_id,
             },
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.judgment_api_key}",
+                "Authorization": f"Bearer {self.gauge_api_key}",
                 "X-Organization-Id": self.organization_id,
             },
             verify=True,
@@ -162,7 +162,7 @@ class TraceManagerClient:
         final_save: bool = True,
     ):
         """
-        Upserts a trace to the Judgment API (always overwrites if exists).
+        Upserts a trace to the Gauge API (always overwrites if exists).
 
         Args:
             trace_data: The trace data to upsert
@@ -190,11 +190,11 @@ class TraceManagerClient:
         serialized_trace_data = json.dumps(trace_data, default=fallback_encoder)
 
         response = requests.post(
-            JUDGMENT_TRACES_UPSERT_API_URL,
+            GAUGE_TRACES_UPSERT_API_URL,
             data=serialized_trace_data,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.judgment_api_key}",
+                "Authorization": f"Bearer {self.gauge_api_key}",
                 "X-Organization-Id": self.organization_id,
             },
             verify=True,
@@ -236,11 +236,11 @@ class TraceManagerClient:
         }
 
         response = requests.post(
-            JUDGMENT_TRACES_ADD_ANNOTATION_API_URL,
+            GAUGE_TRACES_ADD_ANNOTATION_API_URL,
             json=json_data,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.judgment_api_key}",
+                "Authorization": f"Bearer {self.gauge_api_key}",
                 "X-Organization-Id": self.organization_id,
             },
             verify=True,
@@ -256,13 +256,13 @@ class TraceManagerClient:
         Delete a trace from the database.
         """
         response = requests.delete(
-            JUDGMENT_TRACES_DELETE_API_URL,
+            GAUGE_TRACES_DELETE_API_URL,
             json={
                 "trace_ids": [trace_id],
             },
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.judgment_api_key}",
+                "Authorization": f"Bearer {self.gauge_api_key}",
                 "X-Organization-Id": self.organization_id,
             },
         )
@@ -277,13 +277,13 @@ class TraceManagerClient:
         Delete a batch of traces from the database.
         """
         response = requests.delete(
-            JUDGMENT_TRACES_DELETE_API_URL,
+            GAUGE_TRACES_DELETE_API_URL,
             json={
                 "trace_ids": trace_ids,
             },
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.judgment_api_key}",
+                "Authorization": f"Bearer {self.gauge_api_key}",
                 "X-Organization-Id": self.organization_id,
             },
         )
@@ -298,13 +298,13 @@ class TraceManagerClient:
         Deletes a project from the server. Which also deletes all evaluations and traces associated with the project.
         """
         response = requests.delete(
-            JUDGMENT_PROJECT_DELETE_API_URL,
+            GAUGE_PROJECT_DELETE_API_URL,
             json={
                 "project_name": project_name,
             },
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.judgment_api_key}",
+                "Authorization": f"Bearer {self.gauge_api_key}",
                 "X-Organization-Id": self.organization_id,
             },
         )
@@ -510,7 +510,7 @@ class TraceClient:
             examples=[example],
             scorers=scorers,
             model=model,
-            judgment_api_key=self.tracer.api_key,
+            gauge_api_key=self.tracer.api_key,
             trace_span_id=span_id_to_use,
         )
 
@@ -858,7 +858,7 @@ class BackgroundSpanService:
 
     def __init__(
         self,
-        judgment_api_key: str,
+        gauge_api_key: str,
         organization_id: str,
         batch_size: int = 10,
         flush_interval: float = 5.0,
@@ -868,13 +868,13 @@ class BackgroundSpanService:
         Initialize the background span service.
 
         Args:
-            judgment_api_key: API key for Judgment service
+            gauge_api_key: API key for Gauge service
             organization_id: Organization ID
             batch_size: Number of spans to batch before sending (default: 10)
             flush_interval: Time in seconds between automatic flushes (default: 5.0)
             num_workers: Number of worker threads to process the queue (default: 1)
         """
-        self.judgment_api_key = judgment_api_key
+        self.gauge_api_key = gauge_api_key
         self.organization_id = organization_id
         self.batch_size = batch_size
         self.flush_interval = flush_interval
@@ -1019,11 +1019,11 @@ class BackgroundSpanService:
 
             # Send the actual HTTP request to the batch endpoint
             response = requests.post(
-                JUDGMENT_TRACES_SPANS_BATCH_API_URL,
+                GAUGE_TRACES_SPANS_BATCH_API_URL,
                 data=serialized_data,
                 headers={
                     "Content-Type": "application/json",
-                    "Authorization": f"Bearer {self.judgment_api_key}",
+                    "Authorization": f"Bearer {self.gauge_api_key}",
                     "X-Organization-Id": self.organization_id,
                 },
                 verify=True,
@@ -1081,11 +1081,11 @@ class BackgroundSpanService:
 
             # Send the actual HTTP request to the batch endpoint
             response = requests.post(
-                JUDGMENT_TRACES_EVALUATION_RUNS_BATCH_API_URL,
+                GAUGE_TRACES_EVALUATION_RUNS_BATCH_API_URL,
                 data=serialized_data,
                 headers={
                     "Content-Type": "application/json",
-                    "Authorization": f"Bearer {self.judgment_api_key}",
+                    "Authorization": f"Bearer {self.gauge_api_key}",
                     "X-Organization-Id": self.organization_id,
                 },
                 verify=True,
@@ -1226,7 +1226,7 @@ class _DeepTracer:
         module_name = frame.f_globals.get("__name__", None)
         func = frame.f_globals.get(func_name)
         if func and (
-            hasattr(func, "_judgment_span_name") or hasattr(func, "_judgment_span_type")
+            hasattr(func, "_gauge_span_name") or hasattr(func, "_gauge_span_type")
         ):
             return False
 
@@ -1376,7 +1376,7 @@ class _DeepTracer:
             self._span_stack.set(span_stack)
 
             token = self._tracer.set_current_span(span_id)
-            frame.f_locals["_judgment_span_token"] = token
+            frame.f_locals["_gauge_span_token"] = token
 
             span = TraceSpan(
                 span_id=span_id,
@@ -1436,8 +1436,8 @@ class _DeepTracer:
             else:
                 self._tracer.set_current_span(span_data["parent_span_id"])
 
-            if "_judgment_span_token" in frame.f_locals:
-                self._tracer.reset_current_span(frame.f_locals["_judgment_span_token"])
+            if "_gauge_span_token" in frame.f_locals:
+                self._tracer.reset_current_span(frame.f_locals["_gauge_span_token"])
 
         elif event == "exception":
             exc_type = arg[0]
@@ -1500,13 +1500,13 @@ class Tracer:
 
     def __init__(
         self,
-        api_key: str | None = os.getenv("JUDGMENT_API_KEY"),
-        organization_id: str | None = os.getenv("JUDGMENT_ORG_ID"),
+        api_key: str | None = os.getenv("GAUGE_API_KEY"),
+        organization_id: str | None = os.getenv("GAUGE_ORG_ID"),
         project_name: str | None = None,
         deep_tracing: bool = False,  # Deep tracing is disabled by default
-        enable_monitoring: bool = os.getenv("JUDGMENT_MONITORING", "true").lower()
+        enable_monitoring: bool = os.getenv("GAUGE_MONITORING", "true").lower()
         == "true",
-        enable_evaluations: bool = os.getenv("JUDGMENT_EVALUATIONS", "true").lower()
+        enable_evaluations: bool = os.getenv("GAUGE_EVALUATIONS", "true").lower()
         == "true",
         # S3 configuration
         use_s3: bool = False,
@@ -1523,12 +1523,12 @@ class Tracer:
         try:
             if not api_key:
                 raise ValueError(
-                    "api_key parameter must be provided. Please provide a valid API key value or set the JUDGMENT_API_KEY environment variable"
+                    "api_key parameter must be provided. Please provide a valid API key value or set the GAUGE_API_KEY environment variable"
                 )
 
             if not organization_id:
                 raise ValueError(
-                    "organization_id parameter must be provided. Please provide a valid organization ID value or set the JUDGMENT_ORG_ID environment variable"
+                    "organization_id parameter must be provided. Please provide a valid organization ID value or set the GAUGE_ORG_ID environment variable"
                 )
 
             try:
@@ -1541,7 +1541,7 @@ class Tracer:
                 result = True
 
             if not result:
-                raise ValueError(f"Issue with passed in Judgment API key: {response}")
+                raise ValueError(f"Issue with passed in Gauge API key: {response}")
 
             if use_s3 and not s3_bucket_name:
                 raise ValueError("S3 bucket name must be provided when use_s3 is True")
@@ -1586,7 +1586,7 @@ class Tracer:
             # Initialize background span service
             self.background_span_service: Optional[BackgroundSpanService] = None
             self.background_span_service = BackgroundSpanService(
-                judgment_api_key=api_key,
+                gauge_api_key=api_key,
                 organization_id=organization_id,
                 batch_size=span_batch_size,
                 flush_interval=span_flush_interval,
@@ -1868,8 +1868,8 @@ class Tracer:
             original_span_name = name or func.__name__
 
             # Store custom attributes on the function object
-            func._judgment_span_name = original_span_name
-            func._judgment_span_type = span_type
+            func._gauge_span_name = original_span_name
+            func._gauge_span_type = span_type
 
         except Exception:
             return func
@@ -2184,7 +2184,7 @@ class Tracer:
                 ):
                     continue
 
-                if hasattr(method, "_judgment_span_name"):
+                if hasattr(method, "_gauge_span_name"):
                     skipped.append(name)
                     if warn_on_double_decoration:
                         gaugelab_logger.info(
@@ -2789,7 +2789,7 @@ _TRACE_FILEPATH_BLOCKLIST = tuple(
         site.getusersitepackages(),
         *(
             [os.path.join(os.path.dirname(__file__), "../../gaugelab/")]
-            if os.environ.get("JUDGMENT_DEV")
+            if os.environ.get("GAUGE_DEV")
             else []
         ),
     }

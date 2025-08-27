@@ -15,15 +15,15 @@ from gaugelab.scorers import BaseScorer, APIScorerConfig
 from gaugelab.scorers.score import a_execute_scoring
 from gaugelab.constants import (
     ROOT_API,
-    JUDGMENT_EVAL_API_URL,
-    JUDGMENT_TRACE_EVAL_API_URL,
-    JUDGMENT_EVAL_LOG_API_URL,
+    GAUGE_EVAL_API_URL,
+    GAUGE_TRACE_EVAL_API_URL,
+    GAUGE_EVAL_LOG_API_URL,
     MAX_CONCURRENT_EVALUATIONS,
-    JUDGMENT_ADD_TO_RUN_EVAL_QUEUE_API_URL,
-    JUDGMENT_GET_EVAL_STATUS_API_URL,
-    JUDGMENT_EVAL_FETCH_API_URL,
+    GAUGE_ADD_TO_RUN_EVAL_QUEUE_API_URL,
+    GAUGE_GET_EVAL_STATUS_API_URL,
+    GAUGE_EVAL_FETCH_API_URL,
 )
-from gaugelab.common.exceptions import JudgmentAPIError
+from gaugelab.common.exceptions import GaugeAPIError
 from gaugelab.common.logger import gaugelab_logger
 from gaugelab.evaluation_run import EvaluationRun
 from gaugelab.data.trace_run import TraceRun
@@ -60,10 +60,10 @@ def send_to_rabbitmq(evaluation_run: EvaluationRun) -> None:
     """
     payload = evaluation_run.model_dump(warnings=False)
     response = requests.post(
-        JUDGMENT_ADD_TO_RUN_EVAL_QUEUE_API_URL,
+        GAUGE_ADD_TO_RUN_EVAL_QUEUE_API_URL,
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {evaluation_run.judgment_api_key}",
+            "Authorization": f"Bearer {evaluation_run.gauge_api_key}",
             "X-Organization-Id": evaluation_run.organization_id,
         },
         json=payload,
@@ -74,7 +74,7 @@ def send_to_rabbitmq(evaluation_run: EvaluationRun) -> None:
 
 def execute_api_eval(evaluation_run: EvaluationRun) -> Dict:
     """
-    Executes an evaluation of a list of `Example`s using one or more `JudgmentScorer`s via the Judgment API.
+    Executes an evaluation of a list of `Example`s using one or more `GaugeScorer`s via the Gauge API.
 
     Args:
         evaluation_run (EvaluationRun): The evaluation run object containing the examples, scorers, and metadata
@@ -88,10 +88,10 @@ def execute_api_eval(evaluation_run: EvaluationRun) -> Dict:
         # submit API request to execute evals
         payload = evaluation_run.model_dump()
         response = requests.post(
-            JUDGMENT_EVAL_API_URL,
+            GAUGE_EVAL_API_URL,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {evaluation_run.judgment_api_key}",
+                "Authorization": f"Bearer {evaluation_run.gauge_api_key}",
                 "X-Organization-Id": evaluation_run.organization_id,
             },
             json=payload,
@@ -101,31 +101,31 @@ def execute_api_eval(evaluation_run: EvaluationRun) -> Dict:
     except Exception as e:
         gaugelab_logger.error(f"Error: {e}")
         details = response.json().get("detail", "No details provided")
-        raise JudgmentAPIError(
-            "An error occurred while executing the Judgment API request: " + details
+        raise GaugeAPIError(
+            "An error occurred while executing the Gauge API request: " + details
         )
     # Check if the response status code is not 2XX
     # Add check for the duplicate eval run name
     if not response.ok:
         error_message = response_data.get("detail", "An unknown error occurred.")
         gaugelab_logger.error(f"Error: {error_message=}")
-        raise JudgmentAPIError(error_message)
+        raise GaugeAPIError(error_message)
     return response_data
 
 
 def execute_api_trace_eval(trace_run: TraceRun) -> Dict:
     """
-    Executes an evaluation of a list of `Trace`s using one or more `JudgmentScorer`s via the Judgment API.
+    Executes an evaluation of a list of `Trace`s using one or more `GaugeScorer`s via the Gauge API.
     """
 
     try:
         # submit API request to execute evals
         payload = trace_run.model_dump(warnings=False)
         response = requests.post(
-            JUDGMENT_TRACE_EVAL_API_URL,
+            GAUGE_TRACE_EVAL_API_URL,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {trace_run.judgment_api_key}",
+                "Authorization": f"Bearer {trace_run.gauge_api_key}",
                 "X-Organization-Id": trace_run.organization_id,
             },
             json=payload,
@@ -135,15 +135,15 @@ def execute_api_trace_eval(trace_run: TraceRun) -> Dict:
     except Exception as e:
         gaugelab_logger.error(f"Error: {e}")
         details = response.json().get("detail", "No details provided")
-        raise JudgmentAPIError(
-            "An error occurred while executing the Judgment API request: " + details
+        raise GaugeAPIError(
+            "An error occurred while executing the Gauge API request: " + details
         )
     # Check if the response status code is not 2XX
     # Add check for the duplicate eval run name
     if not response.ok:
         error_message = response_data.get("detail", "An unknown error occurred.")
         gaugelab_logger.error(f"Error: {error_message=}")
-        raise JudgmentAPIError(error_message)
+        raise GaugeAPIError(error_message)
     return response_data
 
 
@@ -151,7 +151,7 @@ def merge_results(
     api_results: List[ScoringResult], local_results: List[ScoringResult]
 ) -> List[ScoringResult]:
     """
-    When executing scorers that come from both the Judgment API and local scorers, we're left with
+    When executing scorers that come from both the Gauge API and local scorers, we're left with
     results for each type of scorer. This function merges the results from the API and local evaluations,
     grouped by example. In particular, we merge the `scorers_data` field of each `ScoringResult` object.
 
@@ -248,7 +248,7 @@ def check_missing_scorer_data(results: List[ScoringResult]) -> List[ScoringResul
 def check_experiment_type(
     eval_name: str,
     project_name: str,
-    judgment_api_key: str,
+    gauge_api_key: str,
     organization_id: str,
     is_trace: bool,
 ) -> None:
@@ -260,13 +260,13 @@ def check_experiment_type(
             f"{ROOT_API}/check_experiment_type/",
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {judgment_api_key}",
+                "Authorization": f"Bearer {gauge_api_key}",
                 "X-Organization-Id": organization_id,
             },
             json={
                 "eval_name": eval_name,
                 "project_name": project_name,
-                "judgment_api_key": judgment_api_key,
+                "gauge_api_key": gauge_api_key,
                 "is_trace": is_trace,
             },
             verify=True,
@@ -280,15 +280,15 @@ def check_experiment_type(
             response_data = response.json()
             error_message = response_data.get("detail", "An unknown error occurred.")
             gaugelab_logger.error(f"Error checking eval run name: {error_message}")
-            raise JudgmentAPIError(error_message)
+            raise GaugeAPIError(error_message)
 
     except exceptions.RequestException as e:
         gaugelab_logger.error(f"Failed to check if experiment type exists: {str(e)}")
-        raise JudgmentAPIError(f"Failed to check if experiment type exists: {str(e)}")
+        raise GaugeAPIError(f"Failed to check if experiment type exists: {str(e)}")
 
 
 def check_eval_run_name_exists(
-    eval_name: str, project_name: str, judgment_api_key: str, organization_id: str
+    eval_name: str, project_name: str, gauge_api_key: str, organization_id: str
 ) -> None:
     """
     Checks if an evaluation run name already exists for a given project.
@@ -296,24 +296,24 @@ def check_eval_run_name_exists(
     Args:
         eval_name (str): Name of the evaluation run
         project_name (str): Name of the project
-        judgment_api_key (str): API key for authentication
+        gauge_api_key (str): API key for authentication
 
     Raises:
         ValueError: If the evaluation run name already exists
-        JudgmentAPIError: If there's an API error during the check
+        GaugeAPIError: If there's an API error during the check
     """
     try:
         response = requests.post(
             f"{ROOT_API}/eval-run-name-exists/",
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {judgment_api_key}",
+                "Authorization": f"Bearer {gauge_api_key}",
                 "X-Organization-Id": organization_id,
             },
             json={
                 "eval_name": eval_name,
                 "project_name": project_name,
-                "judgment_api_key": judgment_api_key,
+                "gauge_api_key": gauge_api_key,
             },
             verify=True,
         )
@@ -330,33 +330,33 @@ def check_eval_run_name_exists(
             response_data = response.json()
             error_message = response_data.get("detail", "An unknown error occurred.")
             gaugelab_logger.error(f"Error checking eval run name: {error_message}")
-            raise JudgmentAPIError(error_message)
+            raise GaugeAPIError(error_message)
 
     except exceptions.RequestException as e:
         gaugelab_logger.error(f"Failed to check if eval run name exists: {str(e)}")
-        raise JudgmentAPIError(f"Failed to check if eval run name exists: {str(e)}")
+        raise GaugeAPIError(f"Failed to check if eval run name exists: {str(e)}")
 
 
 def log_evaluation_results(
     scoring_results: List[ScoringResult], run: Union[EvaluationRun, TraceRun]
 ) -> str | None:
     """
-    Logs evaluation results to the Judgment API database.
+    Logs evaluation results to the Gauge API database.
 
     Args:
         merged_results (List[ScoringResult]): The results to log
         evaluation_run (EvaluationRun): The evaluation run containing project info and API key
 
     Raises:
-        JudgmentAPIError: If there's an API error during logging
+        GaugeAPIError: If there's an API error during logging
         ValueError: If there's a validation error with the results
     """
     try:
         res = requests.post(
-            JUDGMENT_EVAL_LOG_API_URL,
+            GAUGE_EVAL_LOG_API_URL,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {run.judgment_api_key}",
+                "Authorization": f"Bearer {run.gauge_api_key}",
                 "X-Organization-Id": run.organization_id,
             },
             json={"results": scoring_results, "run": run.model_dump(warnings=False)},
@@ -367,7 +367,7 @@ def log_evaluation_results(
             response_data = res.json()
             error_message = response_data.get("detail", "An unknown error occurred.")
             gaugelab_logger.error(f"Error {res.status_code}: {error_message}")
-            raise JudgmentAPIError(error_message)
+            raise GaugeAPIError(error_message)
 
         if "ui_results_url" in res.json():
             url = res.json()["ui_results_url"]
@@ -380,7 +380,7 @@ def log_evaluation_results(
         gaugelab_logger.error(
             f"Request failed while saving evaluation results to DB: {str(e)}"
         )
-        raise JudgmentAPIError(
+        raise GaugeAPIError(
             f"Request failed while saving evaluation results to DB: {str(e)}"
         )
     except Exception as e:
@@ -465,7 +465,7 @@ def run_trace_eval(
         check_eval_run_name_exists(
             trace_run.eval_name,
             trace_run.project_name,
-            trace_run.judgment_api_key,
+            trace_run.gauge_api_key,
             trace_run.organization_id,
         )
 
@@ -474,7 +474,7 @@ def run_trace_eval(
         check_experiment_type(
             trace_run.eval_name,
             trace_run.project_name,
-            trace_run.judgment_api_key,
+            trace_run.gauge_api_key,
             trace_run.organization_id,
             True,
         )
@@ -514,17 +514,17 @@ def run_trace_eval(
         trace_run.traces = new_traces
         actual_tracer.traces = []
 
-    # Execute evaluation using Judgment API
-    try:  # execute an EvaluationRun with just JudgmentScorers
+    # Execute evaluation using Gauge API
+    try:  # execute an EvaluationRun with just GaugeScorers
         response_data: Dict = run_with_spinner(
             "Running Trace Evaluation: ", execute_api_trace_eval, trace_run
         )
         scoring_results = [
             ScoringResult(**result) for result in response_data["results"]
         ]
-    except JudgmentAPIError as e:
-        raise JudgmentAPIError(
-            f"An error occurred while executing the Judgment API request: {str(e)}"
+    except GaugeAPIError as e:
+        raise GaugeAPIError(
+            f"An error occurred while executing the Gauge API request: {str(e)}"
         )
     except ValueError as e:
         raise ValueError(
@@ -546,7 +546,7 @@ def run_trace_eval(
 
 
 async def get_evaluation_status(
-    eval_name: str, project_name: str, judgment_api_key: str, organization_id: str
+    eval_name: str, project_name: str, gauge_api_key: str, organization_id: str
 ) -> Dict:
     """
     Gets the status of an async evaluation run.
@@ -554,7 +554,7 @@ async def get_evaluation_status(
     Args:
         eval_name (str): Name of the evaluation run
         project_name (str): Name of the project
-        judgment_api_key (str): API key for authentication
+        gauge_api_key (str): API key for authentication
         organization_id (str): Organization ID for the evaluation
 
     Returns:
@@ -565,10 +565,10 @@ async def get_evaluation_status(
     """
     try:
         response = requests.get(
-            JUDGMENT_GET_EVAL_STATUS_API_URL,
+            GAUGE_GET_EVAL_STATUS_API_URL,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {judgment_api_key}",
+                "Authorization": f"Bearer {gauge_api_key}",
                 "X-Organization-Id": organization_id,
             },
             params={
@@ -581,18 +581,18 @@ async def get_evaluation_status(
         if not response.ok:
             error_message = response.json().get("detail", "An unknown error occurred.")
             gaugelab_logger.error(f"Error checking evaluation status: {error_message}")
-            raise JudgmentAPIError(error_message)
+            raise GaugeAPIError(error_message)
 
         return response.json()
     except exceptions.RequestException as e:
         gaugelab_logger.error(f"Failed to check evaluation status: {str(e)}")
-        raise JudgmentAPIError(f"Failed to check evaluation status: {str(e)}")
+        raise GaugeAPIError(f"Failed to check evaluation status: {str(e)}")
 
 
 async def _poll_evaluation_until_complete(
     eval_name: str,
     project_name: str,
-    judgment_api_key: str,
+    gauge_api_key: str,
     organization_id: str,
     expected_scorer_count: int,
     original_examples: List[Example],
@@ -604,7 +604,7 @@ async def _poll_evaluation_until_complete(
     Args:
         eval_name (str): Name of the evaluation run
         project_name (str): Name of the project
-        judgment_api_key (str): API key for authentication
+        gauge_api_key (str): API key for authentication
         organization_id (str): Organization ID for the evaluation
         poll_interval_seconds (int, optional): Time between status checks in seconds. Defaults to 5.
         original_examples (List[Example], optional): The original examples sent for evaluation.
@@ -621,10 +621,10 @@ async def _poll_evaluation_until_complete(
             # Check status
             response = await asyncio.to_thread(
                 requests.get,
-                JUDGMENT_GET_EVAL_STATUS_API_URL,
+                GAUGE_GET_EVAL_STATUS_API_URL,
                 headers={
                     "Content-Type": "application/json",
-                    "Authorization": f"Bearer {judgment_api_key}",
+                    "Authorization": f"Bearer {gauge_api_key}",
                     "X-Organization-Id": organization_id,
                 },
                 params={"eval_name": eval_name, "project_name": project_name},
@@ -649,10 +649,10 @@ async def _poll_evaluation_until_complete(
             if status == "completed" or status == "complete":
                 results_response = await asyncio.to_thread(
                     requests.post,
-                    JUDGMENT_EVAL_FETCH_API_URL,
+                    GAUGE_EVAL_FETCH_API_URL,
                     headers={
                         "Content-Type": "application/json",
-                        "Authorization": f"Bearer {judgment_api_key}",
+                        "Authorization": f"Bearer {gauge_api_key}",
                         "X-Organization-Id": organization_id,
                     },
                     json={"project_name": project_name, "eval_name": eval_name},
@@ -666,7 +666,7 @@ async def _poll_evaluation_until_complete(
                     gaugelab_logger.error(
                         f"Error fetching evaluation results: {error_message}"
                     )
-                    raise JudgmentAPIError(error_message)
+                    raise GaugeAPIError(error_message)
 
                 result_data = results_response.json()
 
@@ -710,19 +710,19 @@ async def _poll_evaluation_until_complete(
                 gaugelab_logger.error(
                     f"Evaluation '{eval_name}' failed: {error_message}"
                 )
-                raise JudgmentAPIError(f"Evaluation failed: {error_message}")
+                raise GaugeAPIError(f"Evaluation failed: {error_message}")
 
             # Wait before checking again
             await asyncio.sleep(poll_interval_seconds)
 
         except Exception as e:
-            if isinstance(e, JudgmentAPIError):
+            if isinstance(e, GaugeAPIError):
                 raise
 
             # For other exceptions, log and continue polling
             gaugelab_logger.error(f"Error checking evaluation status: {str(e)}")
             if poll_count > 20:  # Only raise exception after many failed attempts
-                raise JudgmentAPIError(
+                raise GaugeAPIError(
                     f"Error checking evaluation status after {poll_count} attempts: {str(e)}"
                 )
 
@@ -825,7 +825,7 @@ def run_eval(
         check_eval_run_name_exists(
             evaluation_run.eval_name,
             evaluation_run.project_name,
-            evaluation_run.judgment_api_key,
+            evaluation_run.gauge_api_key,
             evaluation_run.organization_id,
         )
 
@@ -834,7 +834,7 @@ def run_eval(
         check_experiment_type(
             evaluation_run.eval_name,
             evaluation_run.project_name,
-            evaluation_run.judgment_api_key,
+            evaluation_run.gauge_api_key,
             evaluation_run.organization_id,
             False,
         )
@@ -843,11 +843,11 @@ def run_eval(
     for idx, example in enumerate(evaluation_run.examples):
         example.example_index = idx  # Set numeric index
 
-    judgment_scorers: List[APIScorerConfig] = []
+    gauge_scorers: List[APIScorerConfig] = []
     local_scorers: List[BaseScorer] = []
     for scorer in evaluation_run.scorers:
         if isinstance(scorer, APIScorerConfig):
-            judgment_scorers.append(scorer)
+            gauge_scorers.append(scorer)
         else:
             local_scorers.append(scorer)
 
@@ -868,10 +868,10 @@ def run_eval(
             # Send the evaluation to the queue
             response = await asyncio.to_thread(
                 requests.post,
-                JUDGMENT_ADD_TO_RUN_EVAL_QUEUE_API_URL,
+                GAUGE_ADD_TO_RUN_EVAL_QUEUE_API_URL,
                 headers={
                     "Content-Type": "application/json",
-                    "Authorization": f"Bearer {evaluation_run.judgment_api_key}",
+                    "Authorization": f"Bearer {evaluation_run.gauge_api_key}",
                     "X-Organization-Id": evaluation_run.organization_id,
                 },
                 json=payload,
@@ -885,13 +885,13 @@ def run_eval(
                 gaugelab_logger.error(
                     f"Error adding evaluation to queue: {error_message}"
                 )
-                raise JudgmentAPIError(error_message)
+                raise GaugeAPIError(error_message)
 
             # Poll until the evaluation is complete
             results = await _poll_evaluation_until_complete(
                 eval_name=evaluation_run.eval_name,
                 project_name=evaluation_run.project_name,
-                judgment_api_key=evaluation_run.judgment_api_key,
+                gauge_api_key=evaluation_run.gauge_api_key,
                 organization_id=evaluation_run.organization_id,
                 original_examples=evaluation_run.examples,  # Pass the original examples
                 expected_scorer_count=len(evaluation_run.scorers),
@@ -924,27 +924,27 @@ def run_eval(
         )
     else:
         check_examples(evaluation_run.examples, evaluation_run.scorers)
-        if judgment_scorers:
-            # Execute evaluation using Judgment API
-            try:  # execute an EvaluationRun with just JudgmentScorers
+        if gauge_scorers:
+            # Execute evaluation using Gauge API
+            try:  # execute an EvaluationRun with just GaugeScorers
                 api_evaluation_run: EvaluationRun = EvaluationRun(
                     eval_name=evaluation_run.eval_name,
                     project_name=evaluation_run.project_name,
                     examples=evaluation_run.examples,
-                    scorers=judgment_scorers,
+                    scorers=gauge_scorers,
                     model=evaluation_run.model,
-                    judgment_api_key=evaluation_run.judgment_api_key,
+                    gauge_api_key=evaluation_run.gauge_api_key,
                     organization_id=evaluation_run.organization_id,
                 )
                 response_data: Dict = run_with_spinner(
                     "Running Evaluation: ", execute_api_eval, api_evaluation_run
                 )
-            except JudgmentAPIError as e:
+            except GaugeAPIError as e:
                 gaugelab_logger.error(
-                    f"An error occurred while executing the Judgment API request: {str(e)}"
+                    f"An error occurred while executing the Gauge API request: {str(e)}"
                 )
-                raise JudgmentAPIError(
-                    f"An error occurred while executing the Judgment API request: {str(e)}"
+                raise GaugeAPIError(
+                    f"An error occurred while executing the Gauge API request: {str(e)}"
                 )
             except ValueError as e:
                 raise ValueError(
@@ -976,7 +976,7 @@ def run_eval(
         #     run_rules(
         #         local_results=merged_results,
         #         rules=evaluation_run.rules,
-        #         judgment_api_key=evaluation_run.judgment_api_key,
+        #         gauge_api_key=evaluation_run.gauge_api_key,
         #         organization_id=evaluation_run.organization_id
         #     )
         # print(merged_results)

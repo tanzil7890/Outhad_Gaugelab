@@ -48,7 +48,7 @@ def test_bucket(s3_client, test_bucket_name):
 
 
 @pytest.fixture
-def judgment(test_bucket, project_name: str):
+def gauge(test_bucket, project_name: str):
     """Create a Tracer instance for testing."""
     Tracer._instance = None
     yield Tracer(
@@ -61,7 +61,7 @@ def judgment(test_bucket, project_name: str):
 
 
 @pytest.fixture
-def judgment_no_bucket_yet(test_bucket_name, s3_client, project_name: str):
+def gauge_no_bucket_yet(test_bucket_name, s3_client, project_name: str):
     Tracer._instance = None
     yield Tracer(
         project_name=project_name,
@@ -83,12 +83,12 @@ def judgment_no_bucket_yet(test_bucket_name, s3_client, project_name: str):
 
 
 @pytest.mark.asyncio
-async def test_save_trace_to_s3(judgment, s3_client, project_name: str):
-    """Test saving a trace to S3 using judgment.observe decorator."""
+async def test_save_trace_to_s3(gauge, s3_client, project_name: str):
+    """Test saving a trace to S3 using gauge.observe decorator."""
 
     test_output = "test output"
 
-    @judgment.observe(name="test_trace")
+    @gauge.observe(name="test_trace")
     def test_function(input):
         return test_output
 
@@ -97,7 +97,7 @@ async def test_save_trace_to_s3(judgment, s3_client, project_name: str):
     # Verify trace was saved to S3
     try:
         # List objects in the bucket
-        response = s3_client.list_objects_v2(Bucket=judgment.s3_storage.bucket_name)
+        response = s3_client.list_objects_v2(Bucket=gauge.s3_storage.bucket_name)
         assert "Contents" in response, "No objects found in bucket"
 
         # Find our trace file
@@ -111,7 +111,7 @@ async def test_save_trace_to_s3(judgment, s3_client, project_name: str):
         # Get the trace file content
         trace_file = trace_files[0]
         response = s3_client.get_object(
-            Bucket=judgment.s3_storage.bucket_name, Key=trace_file["Key"]
+            Bucket=gauge.s3_storage.bucket_name, Key=trace_file["Key"]
         )
         trace_content = response["Body"].read().decode("utf-8")
 
@@ -125,18 +125,18 @@ async def test_save_trace_to_s3(judgment, s3_client, project_name: str):
 
 @pytest.mark.asyncio
 async def test_auto_bucket_creation(
-    judgment_no_bucket_yet, s3_client, project_name: str
+    gauge_no_bucket_yet, s3_client, project_name: str
 ):
     """Test that observe() automatically creates the S3 bucket if it doesn't exist."""
 
     # Verify bucket doesn't exist initially
     with pytest.raises(ClientError) as exc_info:
-        s3_client.head_bucket(Bucket=judgment_no_bucket_yet.s3_storage.bucket_name)
+        s3_client.head_bucket(Bucket=gauge_no_bucket_yet.s3_storage.bucket_name)
     assert exc_info.value.response["Error"]["Code"] == "404"
 
     test_output = "test output"
 
-    @judgment_no_bucket_yet.observe(name=project_name)
+    @gauge_no_bucket_yet.observe(name=project_name)
     def test_function(input):
         return test_output
 
@@ -148,12 +148,12 @@ async def test_auto_bucket_creation(
     start_time = time.time()
     while True:
         try:
-            s3_client.head_bucket(Bucket=judgment_no_bucket_yet.s3_storage.bucket_name)
+            s3_client.head_bucket(Bucket=gauge_no_bucket_yet.s3_storage.bucket_name)
             break  # Bucket exists, continue with test
         except ClientError as e:
             if time.time() - start_time > timeout:
                 pytest.fail(
-                    f"Bucket {judgment_no_bucket_yet.s3_storage.bucket_name} was not created after {timeout} seconds: {e}"
+                    f"Bucket {gauge_no_bucket_yet.s3_storage.bucket_name} was not created after {timeout} seconds: {e}"
                 )
             await asyncio.sleep(1)  # Wait 1 second before retrying
 
@@ -161,7 +161,7 @@ async def test_auto_bucket_creation(
     try:
         # List objects in the bucket
         response = s3_client.list_objects_v2(
-            Bucket=judgment_no_bucket_yet.s3_storage.bucket_name
+            Bucket=gauge_no_bucket_yet.s3_storage.bucket_name
         )
         assert "Contents" in response, "No objects found in bucket"
 
@@ -176,7 +176,7 @@ async def test_auto_bucket_creation(
         # Get the trace file content
         trace_file = trace_files[0]
         response = s3_client.get_object(
-            Bucket=judgment_no_bucket_yet.s3_storage.bucket_name, Key=trace_file["Key"]
+            Bucket=gauge_no_bucket_yet.s3_storage.bucket_name, Key=trace_file["Key"]
         )
         trace_content = response["Body"].read().decode("utf-8")
 
@@ -189,19 +189,19 @@ async def test_auto_bucket_creation(
 
 
 @pytest.mark.asyncio
-async def test_bucket_already_owned_by_you(judgment, s3_client):
+async def test_bucket_already_owned_by_you(gauge, s3_client):
     """Test handling of BucketAlreadyOwnedByYou error during bucket creation."""
     # Mock the S3 client to simulate BucketAlreadyOwnedByYou error
     with (
         patch.object(
-            judgment.s3_storage.s3_client,
+            gauge.s3_storage.s3_client,
             "head_bucket",
             side_effect=ClientError(
                 {"Error": {"Code": "404", "Message": "Not Found"}}, "HeadBucket"
             ),
         ),
         patch.object(
-            judgment.s3_storage.s3_client,
+            gauge.s3_storage.s3_client,
             "create_bucket",
             side_effect=ClientError(
                 {
@@ -216,7 +216,7 @@ async def test_bucket_already_owned_by_you(judgment, s3_client):
     ):
         test_output = "test output"
 
-        @judgment.observe(name="test_trace")
+        @gauge.observe(name="test_trace")
         def test_function(input):
             return test_output
 

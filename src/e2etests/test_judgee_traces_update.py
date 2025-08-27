@@ -13,7 +13,7 @@ import time
 from uuid import uuid4
 import logging
 from contextlib import asynccontextmanager
-from gaugelab.judgment_client import JudgmentClient
+from gaugelab.gauge_client import GaugeClient
 from gaugelab.scorers import (
     AnswerCorrectnessScorer,
 )
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 # Initialize the tracer and clients
 Tracer._instance = None
-judgment = Tracer(api_key=os.getenv("JUDGMENT_API_KEY"))
+gauge = Tracer(api_key=os.getenv("GAUGE_API_KEY"))
 openai_client = wrap(OpenAI())
 anthropic_client = wrap(Anthropic())
 
@@ -40,9 +40,9 @@ anthropic_client = wrap(Anthropic())
 load_dotenv()
 
 # Get server URL and API key from environment
-SERVER_URL = os.getenv("JUDGMENT_API_URL", "http://localhost:8000")
-TEST_API_KEY = os.getenv("JUDGMENT_API_KEY")
-ORGANIZATION_ID = os.getenv("JUDGMENT_ORG_ID")
+SERVER_URL = os.getenv("GAUGE_API_URL", "http://localhost:8000")
+TEST_API_KEY = os.getenv("GAUGE_API_KEY")
+ORGANIZATION_ID = os.getenv("GAUGE_ORG_ID")
 USER_API_KEY = os.getenv("USER_API_KEY", TEST_API_KEY)  # For user-specific tests
 
 
@@ -352,9 +352,9 @@ async def test_real_trace_tracking(client, project_name: str):
         print("Initializing Tracer...")
         Tracer._instance = None
         tracer = Tracer(
-            api_key=os.getenv("JUDGMENT_API_KEY"),
+            api_key=os.getenv("GAUGE_API_KEY"),
             project_name=project_name,
-            organization_id=os.getenv("JUDGMENT_ORG_ID"),
+            organization_id=os.getenv("GAUGE_ORG_ID"),
         )
         print("Tracer initialized successfully")
 
@@ -581,13 +581,13 @@ async def test_real_judgee_tracking(client, project_name: str):
 
     scorer = AnswerCorrectnessScorer(threshold=0.1)
 
-    judgment_client = JudgmentClient()
+    gauge_client = GaugeClient()
     EVAL_RUN_NAME = "test-run-ac"
 
-    print("Running evaluation with use_judgment=True...")
-    # Test with use_judgment=True
+    print("Running evaluation with use_gauge=True...")
+    # Test with use_gauge=True
     try:
-        res = judgment_client.run_evaluation(
+        res = gauge_client.run_evaluation(
             examples=[example],
             scorers=[scorer],
             model="Qwen/Qwen2.5-72B-Instruct-Turbo",
@@ -645,7 +645,7 @@ async def test_real_trace_and_judgee_tracking(client, project_name: str):
     4. Runs an evaluation within the trace
     5. Verifies that both trace and judgee counts are incremented correctly
     """
-    from gaugelab.judgment_client import JudgmentClient
+    from gaugelab.gauge_client import GaugeClient
     from gaugelab.scorers import AnswerCorrectnessScorer
     from gaugelab.data import Example
     from gaugelab.common.tracer import Tracer
@@ -683,15 +683,15 @@ async def test_real_trace_and_judgee_tracking(client, project_name: str):
         )
         scorer = AnswerCorrectnessScorer(threshold=0.1)
 
-        # Initialize judgment client
-        judgment_client = JudgmentClient()
+        # Initialize gauge client
+        gauge_client = GaugeClient()
         EVAL_RUN_NAME = "test-trace-judgee-run"
 
         # Create a tracer
         tracer = Tracer(
-            api_key=os.getenv("JUDGMENT_API_KEY"),
+            api_key=os.getenv("GAUGE_API_KEY"),
             project_name=project_name,
-            organization_id=os.getenv("JUDGMENT_ORG_ID"),
+            organization_id=os.getenv("GAUGE_ORG_ID"),
         )
 
         # Start a trace
@@ -700,7 +700,7 @@ async def test_real_trace_and_judgee_tracking(client, project_name: str):
 
             # Run evaluation within the trace
             try:
-                res = judgment_client.run_evaluation(
+                res = gauge_client.run_evaluation(
                     examples=[example],
                     scorers=[scorer],
                     model="Qwen/Qwen2.5-72B-Instruct-Turbo",

@@ -7,9 +7,9 @@ class MissingTestCaseParamsError(Exception):
     pass
 
 
-class JudgmentAPIError(Exception):
+class GaugeAPIError(Exception):
     """
-    Exception raised when an error occurs while executing a Judgment API request
+    Exception raised when an error occurs while executing a Gauge API request
     """
 
     def __init__(self, message: str):

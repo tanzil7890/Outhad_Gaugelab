@@ -2,9 +2,7 @@
 name = "gaugelab"
 version = "0.0.0"
 authors = [
-    { name="Andrew Li", email="andrew@judgmentlabs.ai" },
-    { name="Alex Shan", email="alex@judgmentlabs.ai" },
-    { name="Joseph Camyre", email="joseph@judgmentlabs.ai" },
+    { name="Mohammad Tanzil Idris", email="idristanzil@gmail.com" }
 ]
 description = "Gaugelab Package"
 readme = "README.md"
@@ -35,8 +33,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/JudgmentLabs/gaugelab"
-Issues = "https://github.com/JudgmentLabs/gaugelab/issues"
+Homepage = "https://outhad.com/"
 
 [build-system]
 requires = ["hatchling"]

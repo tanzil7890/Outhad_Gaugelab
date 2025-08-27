@@ -1,5 +1,5 @@
 """
-Tests for dataset operations in the JudgmentClient.
+Tests for dataset operations in the GaugeClient.
 """
 
 import pytest
@@ -7,13 +7,13 @@ import json
 import random
 import string
 
-from gaugelab.judgment_client import JudgmentClient
+from gaugelab.gauge_client import GaugeClient
 from gaugelab.data import Example
 
 
 @pytest.mark.basic
 class TestDatasetOperations:
-    def test_dataset(self, client: JudgmentClient, project_name: str):
+    def test_dataset(self, client: GaugeClient, project_name: str):
         """Test dataset creation and manipulation."""
         dataset = client.create_dataset()
         dataset.add_example(Example(input="input 1", actual_output="output 1"))
@@ -31,7 +31,7 @@ class TestDatasetOperations:
         client.delete_dataset(alias="test_dataset_5", project_name=project_name)
 
     def test_pull_all_project_dataset_stats(
-        self, client: JudgmentClient, project_name: str
+        self, client: GaugeClient, project_name: str
     ):
         """Test pulling statistics for all project datasets."""
         dataset = client.create_dataset()
@@ -74,7 +74,7 @@ class TestDatasetOperations:
         client.delete_dataset(alias=random_name1, project_name=project_name)
         client.delete_dataset(alias=random_name2, project_name=project_name)
 
-    def test_append_dataset(self, client: JudgmentClient, project_name: str):
+    def test_append_dataset(self, client: GaugeClient, project_name: str):
         """Test dataset editing."""
         dataset = client.create_dataset()
         dataset.add_example(Example(input="input 1", actual_output="output 1"))
@@ -105,7 +105,7 @@ class TestDatasetOperations:
 
         client.delete_dataset(alias="test_dataset_6", project_name=project_name)
 
-    def test_overwrite_dataset(self, client: JudgmentClient, project_name: str):
+    def test_overwrite_dataset(self, client: GaugeClient, project_name: str):
         """Test dataset overwriting."""
         dataset = client.create_dataset()
         dataset.add_example(Example(input="input 1", actual_output="output 1"))
@@ -130,7 +130,7 @@ class TestDatasetOperations:
         assert dataset, "Failed to pull dataset"
         assert len(dataset.examples) == 2, "Dataset should have 2 examples"
 
-    def test_append_dataset2(self, client: JudgmentClient, project_name: str):
+    def test_append_dataset2(self, client: GaugeClient, project_name: str):
         """Test dataset appending."""
         dataset = client.create_dataset()
         dataset.add_example(Example(input="input 1", actual_output="output 1"))
@@ -154,7 +154,7 @@ class TestDatasetOperations:
         assert len(dataset.examples) == 3, "Dataset should have 3 examples"
 
     def test_export_jsonl(
-        self, client: JudgmentClient, random_name: str, project_name: str
+        self, client: GaugeClient, random_name: str, project_name: str
     ):
         """Test JSONL dataset export functionality."""
         # Create and push test dataset

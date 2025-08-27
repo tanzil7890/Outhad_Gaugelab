@@ -3,19 +3,19 @@ import json
 import sys
 import threading
 from datetime import datetime, timezone
-from gaugelab.data.judgment_types import (
-    TraceUsageJudgmentType,
-    TraceSpanJudgmentType,
-    TraceJudgmentType,
+from gaugelab.data.gauge_types import (
+    TraceUsageGaugeType,
+    TraceSpanGaugeType,
+    TraceGaugeType,
 )
 from pydantic import BaseModel
 
 
-class TraceUsage(TraceUsageJudgmentType):
+class TraceUsage(TraceUsageGaugeType):
     pass
 
 
-class TraceSpan(TraceSpanJudgmentType):
+class TraceSpan(TraceSpanGaugeType):
     def model_dump(self, **kwargs):
         return {
             "span_id": self.span_id,
@@ -131,5 +131,5 @@ class TraceSpan(TraceSpanJudgmentType):
             return {"error": "Unable to serialize"}
 
 
-class Trace(TraceJudgmentType):
+class Trace(TraceGaugeType):
     pass

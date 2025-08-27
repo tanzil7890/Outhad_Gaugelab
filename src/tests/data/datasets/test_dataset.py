@@ -23,15 +23,15 @@
 
 # @pytest.fixture
 # def dataset():
-#     return EvalDataset(judgment_api_key="test_key", organization_id="test_org")
+#     return EvalDataset(gauge_api_key="test_key", organization_id="test_org")
 
 # @pytest.fixture
 # def eval_dataset_client():
-#     return EvalDatasetClient(judgment_api_key="test_key", organization_id="test_org")
+#     return EvalDatasetClient(gauge_api_key="test_key", organization_id="test_org")
 
 # def test_init():
-#     dataset = EvalDataset(judgment_api_key="test_key")
-#     assert dataset.judgment_api_key == "test_key"
+#     dataset = EvalDataset(gauge_api_key="test_key")
+#     assert dataset.gauge_api_key == "test_key"
 #     assert dataset.examples == []
 #     assert dataset._alias is None
 #     assert dataset._id is None

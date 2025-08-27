@@ -2,7 +2,7 @@
 base e2e tests for all default gaugelab scorers
 """
 
-from gaugelab.judgment_client import JudgmentClient
+from gaugelab.gauge_client import GaugeClient
 from gaugelab.scorers import (
     AnswerCorrectnessScorer,
     AnswerRelevancyScorer,
@@ -15,7 +15,7 @@ from gaugelab.scorers import (
 from gaugelab.data import Example
 
 
-def test_ac_scorer(client: JudgmentClient, project_name: str):
+def test_ac_scorer(client: GaugeClient, project_name: str):
     example = Example(
         input="What's the capital of France?",
         actual_output="The capital of France is Paris.",
@@ -36,7 +36,7 @@ def test_ac_scorer(client: JudgmentClient, project_name: str):
     print_debug_on_failure(res[0])
 
 
-def test_ar_scorer(client: JudgmentClient, project_name: str):
+def test_ar_scorer(client: GaugeClient, project_name: str):
     example_1 = Example(  # should pass
         input="What's the capital of France?",
         actual_output="The capital of France is Paris.",
@@ -67,7 +67,7 @@ def test_ar_scorer(client: JudgmentClient, project_name: str):
     assert not res[1].success
 
 
-def test_faithfulness_scorer(client: JudgmentClient, project_name: str):
+def test_faithfulness_scorer(client: GaugeClient, project_name: str):
     faithful_example = Example(  # should pass
         input="What's the capital of France?",
         actual_output="The capital of France is Paris.",
@@ -110,7 +110,7 @@ def test_faithfulness_scorer(client: JudgmentClient, project_name: str):
     assert not res[1].success, res[1]  # contradictory_example should fail
 
 
-def test_instruction_adherence_scorer(client: JudgmentClient, project_name: str):
+def test_instruction_adherence_scorer(client: GaugeClient, project_name: str):
     example_1 = Example(
         input="write me a poem about cars and then turn it into a joke, but also what is 5 +5?",
         actual_output="Cars on the road, they zoom and they fly, Under the sun or a stormy sky. Engines roar, tires spin, A symphony of motion, let the race begin. Now for the joke: Why did the car break up with the bicycle. Because it was tired of being two-tired! And 5 + 5 is 10.",
@@ -134,7 +134,7 @@ def test_instruction_adherence_scorer(client: JudgmentClient, project_name: str)
     assert res[0].success
 
 
-def test_execution_order_scorer(client: JudgmentClient, project_name: str):
+def test_execution_order_scorer(client: GaugeClient, project_name: str):
     EVAL_RUN_NAME = "test-run-execution-order"
 
     example = Example(
@@ -165,7 +165,7 @@ def test_execution_order_scorer(client: JudgmentClient, project_name: str):
     assert not res[0].success
 
 
-def test_classifier_scorer(client: JudgmentClient, project_name: str, random_name: str):
+def test_classifier_scorer(client: GaugeClient, project_name: str, random_name: str):
     """Test classifier scorer functionality."""
     random_slug = random_name
 

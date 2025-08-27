@@ -1,7 +1,7 @@
 """
-Judgment Scorer class.
+Gauge Scorer class.
 
-Scores `Example`s using ready-made Judgment evaluators.
+Scores `Example`s using ready-made Gauge evaluators.
 """
 
 from pydantic import BaseModel, field_validator
@@ -13,10 +13,10 @@ from gaugelab.common.logger import gaugelab_logger
 
 class APIScorerConfig(BaseModel):
     """
-    Scorer config that is used to send to our Judgment server.
+    Scorer config that is used to send to our Gauge server.
 
     Args:
-        score_type (APIScorer): The Judgment metric to use for scoring `Example`s
+        score_type (APIScorer): The Gauge metric to use for scoring `Example`s
         name (str): The name of the scorer, usually this is the same as the score_type
         threshold (float): A value between 0 and 1 that determines the scoring threshold
         strict_mode (bool): Whether to use strict mode for the scorer
@@ -67,4 +67,4 @@ class APIScorerConfig(BaseModel):
         return v
 
     def __str__(self):
-        return f"JudgmentScorer(score_type={self.score_type.value}, threshold={self.threshold})"
+        return f"GaugeScorer(score_type={self.score_type.value}, threshold={self.threshold})"

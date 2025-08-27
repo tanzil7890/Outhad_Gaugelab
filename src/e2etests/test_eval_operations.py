@@ -1,5 +1,5 @@
 """
-Tests for evaluation operations in the JudgmentClient.
+Tests for evaluation operations in the GaugeClient.
 """
 
 import pytest
@@ -10,7 +10,7 @@ import os
 import tempfile
 import time
 
-from gaugelab.judgment_client import JudgmentClient
+from gaugelab.gauge_client import GaugeClient
 from gaugelab.data import Example
 from gaugelab.scorers import (
     FaithfulnessScorer,
@@ -25,7 +25,7 @@ from gaugelab.utils.file_utils import get_examples_from_yaml
 @pytest.mark.basic
 class TestEvalOperations:
     def run_eval_helper(
-        self, client: JudgmentClient, project_name: str, eval_run_name: str
+        self, client: GaugeClient, project_name: str, eval_run_name: str
     ):
         """Helper function to run evaluation."""
         # Single step in our workflow, an outreach Sales Agent
@@ -63,7 +63,7 @@ class TestEvalOperations:
             override=True,
         )
 
-    def test_run_eval(self, client: JudgmentClient):
+    def test_run_eval(self, client: GaugeClient):
         """Test basic evaluation workflow."""
         PROJECT_NAME = "OutreachWorkflow"
         EVAL_RUN_NAME = "ColdEmailGenerator-Improve-BasePrompt"
@@ -76,7 +76,7 @@ class TestEvalOperations:
 
         client.delete_project(project_name=PROJECT_NAME)
 
-    def test_run_eval_append(self, client: JudgmentClient):
+    def test_run_eval_append(self, client: GaugeClient):
         """Test evaluation append behavior."""
         PROJECT_NAME = "OutreachWorkflow"
         EVAL_RUN_NAME = "ColdEmailGenerator-Improve-BasePrompt"
@@ -118,7 +118,7 @@ class TestEvalOperations:
         assert results[0]["scorer_data"][0]["score"] == 1.0
         client.delete_project(project_name=PROJECT_NAME)
 
-    def test_delete_eval_by_project(self, client: JudgmentClient):
+    def test_delete_eval_by_project(self, client: GaugeClient):
         """Test delete evaluation by project and run name workflow."""
         PROJECT_NAME = "".join(
             random.choices(string.ascii_letters + string.digits, k=20)
@@ -137,7 +137,7 @@ class TestEvalOperations:
                 client.pull_eval(project_name=PROJECT_NAME, eval_run_name=eval_run_name)
 
     @pytest.mark.asyncio
-    async def test_assert_test(self, client: JudgmentClient, project_name: str):
+    async def test_assert_test(self, client: GaugeClient, project_name: str):
         """Test assertion functionality."""
         # Create examples and scorers as before
         example = Example(
@@ -170,7 +170,7 @@ class TestEvalOperations:
                 override=True,
             )
 
-    def test_evaluate_dataset(self, client: JudgmentClient, project_name: str):
+    def test_evaluate_dataset(self, client: GaugeClient, project_name: str):
         """Test dataset evaluation."""
         example1 = Example(
             input="What if these shoes don't fit?",
@@ -203,7 +203,7 @@ class TestEvalOperations:
 
     @pytest.mark.asyncio
     async def test_run_trace_eval_from_yaml(
-        self, client: JudgmentClient, project_name: str, random_name: str
+        self, client: GaugeClient, project_name: str, random_name: str
     ):
         """Test run_trace_evaluation with a YAML configuration file."""
         EVAL_RUN_NAME = random_name
@@ -265,7 +265,7 @@ examples:
                 os.remove(temp_yaml_file_path)
 
     def test_override_eval(
-        self, client: JudgmentClient, project_name: str, random_name: str
+        self, client: GaugeClient, project_name: str, random_name: str
     ):
         """Test evaluation override behavior."""
         example1 = Example(

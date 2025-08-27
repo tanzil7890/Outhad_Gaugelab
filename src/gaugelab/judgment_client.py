@@ -1,5 +1,5 @@
 """
-Implements the JudgmentClient to interact with the Judgment API.
+Implements the GaugeClient to interact with the Gauge API.
 """
 
 import os
@@ -30,11 +30,11 @@ from gaugelab.run_evaluation import (
 )
 from gaugelab.data.trace_run import TraceRun
 from gaugelab.constants import (
-    JUDGMENT_EVAL_FETCH_API_URL,
-    JUDGMENT_PROJECT_DELETE_API_URL,
-    JUDGMENT_PROJECT_CREATE_API_URL,
+    GAUGE_EVAL_FETCH_API_URL,
+    GAUGE_PROJECT_DELETE_API_URL,
+    GAUGE_PROJECT_CREATE_API_URL,
 )
-from gaugelab.common.exceptions import JudgmentAPIError
+from gaugelab.common.exceptions import GaugeAPIError
 from langchain_core.callbacks import BaseCallbackHandler
 from gaugelab.common.tracer import Tracer
 from gaugelab.common.utils import validate_api_key
@@ -46,17 +46,17 @@ from gaugelab.common.logger import gaugelab_logger
 class EvalRunRequestBody(BaseModel):
     eval_name: str
     project_name: str
-    judgment_api_key: str
+    gauge_api_key: str
 
 
 class DeleteEvalRunRequestBody(BaseModel):
     eval_names: List[str]
     project_name: str
-    judgment_api_key: str
+    gauge_api_key: str
 
 
 class SingletonMeta(type):
-    _instances: Dict[type, "JudgmentClient"] = {}
+    _instances: Dict[type, "GaugeClient"] = {}
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
@@ -65,23 +65,23 @@ class SingletonMeta(type):
         return cls._instances[cls]
 
 
-class JudgmentClient(metaclass=SingletonMeta):
+class GaugeClient(metaclass=SingletonMeta):
     def __init__(
         self,
-        api_key: Optional[str] = os.getenv("JUDGMENT_API_KEY"),
-        organization_id: Optional[str] = os.getenv("JUDGMENT_ORG_ID"),
+        api_key: Optional[str] = os.getenv("GAUGE_API_KEY"),
+        organization_id: Optional[str] = os.getenv("GAUGE_ORG_ID"),
     ):
         if not api_key:
             raise ValueError(
-                "api_key parameter must be provided. Please provide a valid API key value or set the JUDGMENT_API_KEY environment variable."
+                "api_key parameter must be provided. Please provide a valid API key value or set the GAUGE_API_KEY environment variable."
             )
 
         if not organization_id:
             raise ValueError(
-                "organization_id parameter must be provided. Please provide a valid organization ID value or set the JUDGMENT_ORG_ID environment variable."
+                "organization_id parameter must be provided. Please provide a valid organization ID value or set the GAUGE_ORG_ID environment variable."
             )
 
-        self.judgment_api_key = api_key
+        self.gauge_api_key = api_key
         self.organization_id = organization_id
         self.eval_dataset_client = EvalDatasetClient(api_key, organization_id)
 
@@ -89,9 +89,9 @@ class JudgmentClient(metaclass=SingletonMeta):
         result, response = validate_api_key(api_key)
         if not result:
             # May be bad to output their invalid API key...
-            raise JudgmentAPIError(f"Issue with passed in Judgment API key: {response}")
+            raise GaugeAPIError(f"Issue with passed in Gauge API key: {response}")
         else:
-            gaugelab_logger.info("Successfully initialized JudgmentClient!")
+            gaugelab_logger.info("Successfully initialized GaugeClient!")
 
     def a_run_evaluation(
         self,
@@ -147,7 +147,7 @@ class JudgmentClient(metaclass=SingletonMeta):
                 scorers=scorers,
                 model=model,
                 append=append,
-                judgment_api_key=self.judgment_api_key,
+                gauge_api_key=self.gauge_api_key,
                 organization_id=self.organization_id,
                 tools=tools,
             )
@@ -199,7 +199,7 @@ class JudgmentClient(metaclass=SingletonMeta):
                 examples=examples,
                 scorers=scorers,
                 model=model,
-                judgment_api_key=self.judgment_api_key,
+                gauge_api_key=self.gauge_api_key,
                 organization_id=self.organization_id,
             )
             return run_eval(
@@ -225,31 +225,31 @@ class JudgmentClient(metaclass=SingletonMeta):
         overwrite: Optional[bool] = False,
     ) -> bool:
         """
-        Uploads an `EvalDataset` to the Judgment platform for storage.
+        Uploads an `EvalDataset` to the Gauge platform for storage.
 
         Args:
             alias (str): The name to use for the dataset
-            dataset (EvalDataset): The dataset to upload to Judgment
+            dataset (EvalDataset): The dataset to upload to Gauge
             overwrite (Optional[bool]): Whether to overwrite the dataset if it already exists
 
         Returns:
             bool: Whether the dataset was successfully uploaded
         """
-        # Set judgment_api_key just in case it was not set
-        dataset.judgment_api_key = self.judgment_api_key
+        # Set gauge_api_key just in case it was not set
+        dataset.gauge_api_key = self.gauge_api_key
         return self.eval_dataset_client.push(dataset, alias, project_name, overwrite)
 
     def append_dataset(
         self, alias: str, examples: List[Example], project_name: str
     ) -> bool:
         """
-        Appends an `EvalDataset` to the Judgment platform for storage.
+        Appends an `EvalDataset` to the Gauge platform for storage.
         """
         return self.eval_dataset_client.append_examples(alias, examples, project_name)
 
     def pull_dataset(self, alias: str, project_name: str) -> EvalDataset:
         """
-        Retrieves a saved `EvalDataset` from the Judgment platform.
+        Retrieves a saved `EvalDataset` from the Gauge platform.
 
         Args:
             alias (str): The name of the dataset to retrieve
@@ -261,13 +261,13 @@ class JudgmentClient(metaclass=SingletonMeta):
 
     def delete_dataset(self, alias: str, project_name: str) -> bool:
         """
-        Deletes a saved `EvalDataset` from the Judgment platform.
+        Deletes a saved `EvalDataset` from the Gauge platform.
         """
         return self.eval_dataset_client.delete(alias, project_name)
 
     def pull_project_dataset_stats(self, project_name: str) -> dict:
         """
-        Retrieves all dataset stats from the Judgment platform for the project.
+        Retrieves all dataset stats from the Gauge platform for the project.
 
         Args:
             project_name (str): The name of the project to retrieve
@@ -295,13 +295,13 @@ class JudgmentClient(metaclass=SingletonMeta):
         eval_run_request_body = EvalRunRequestBody(
             project_name=project_name,
             eval_name=eval_run_name,
-            judgment_api_key=self.judgment_api_key,
+            gauge_api_key=self.gauge_api_key,
         )
         eval_run = requests.post(
-            JUDGMENT_EVAL_FETCH_API_URL,
+            GAUGE_EVAL_FETCH_API_URL,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.judgment_api_key}",
+                "Authorization": f"Bearer {self.gauge_api_key}",
                 "X-Organization-Id": self.organization_id,
             },
             json=eval_run_request_body.model_dump(),
@@ -317,13 +317,13 @@ class JudgmentClient(metaclass=SingletonMeta):
         Creates a project on the server.
         """
         response = requests.post(
-            JUDGMENT_PROJECT_CREATE_API_URL,
+            GAUGE_PROJECT_CREATE_API_URL,
             json={
                 "project_name": project_name,
             },
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.judgment_api_key}",
+                "Authorization": f"Bearer {self.gauge_api_key}",
                 "X-Organization-Id": self.organization_id,
             },
         )
@@ -336,13 +336,13 @@ class JudgmentClient(metaclass=SingletonMeta):
         Deletes a project from the server. Which also deletes all evaluations and traces associated with the project.
         """
         response = requests.delete(
-            JUDGMENT_PROJECT_DELETE_API_URL,
+            GAUGE_PROJECT_DELETE_API_URL,
             json={
                 "project_name": project_name,
             },
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.judgment_api_key}",
+                "Authorization": f"Bearer {self.gauge_api_key}",
                 "X-Organization-Id": self.organization_id,
             },
         )
@@ -352,7 +352,7 @@ class JudgmentClient(metaclass=SingletonMeta):
 
     def fetch_classifier_scorer(self, slug: str) -> ClassifierScorer:
         """
-        Fetches a classifier scorer configuration from the Judgment API.
+        Fetches a classifier scorer configuration from the Gauge API.
 
         Args:
             slug (str): Slug identifier of the custom scorer to fetch
@@ -361,7 +361,7 @@ class JudgmentClient(metaclass=SingletonMeta):
             ClassifierScorer: The configured classifier scorer object
 
         Raises:
-            JudgmentAPIError: If the scorer cannot be fetched or doesn't exist
+            GaugeAPIError: If the scorer cannot be fetched or doesn't exist
         """
         request_body = {
             "slug": slug,
@@ -372,18 +372,18 @@ class JudgmentClient(metaclass=SingletonMeta):
             json=request_body,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.judgment_api_key}",
+                "Authorization": f"Bearer {self.gauge_api_key}",
                 "X-Organization-Id": self.organization_id,
             },
             verify=True,
         )
 
         if response.status_code == 500:
-            raise JudgmentAPIError(
+            raise GaugeAPIError(
                 f"The server is temporarily unavailable. Please try your request again in a few moments. Error details: {response.json().get('detail', '')}"
             )
         elif response.status_code != 200:
-            raise JudgmentAPIError(
+            raise GaugeAPIError(
                 f"Failed to fetch classifier scorer '{slug}': {response.json().get('detail', '')}"
             )
 
@@ -394,7 +394,7 @@ class JudgmentClient(metaclass=SingletonMeta):
         try:
             return ClassifierScorer(**scorer_config)
         except Exception as e:
-            raise JudgmentAPIError(
+            raise GaugeAPIError(
                 f"Failed to create classifier scorer '{slug}' with config {scorer_config}: {str(e)}"
             )
 
@@ -402,7 +402,7 @@ class JudgmentClient(metaclass=SingletonMeta):
         self, scorer: ClassifierScorer, slug: str | None = None
     ) -> str:
         """
-        Pushes a classifier scorer configuration to the Judgment API.
+        Pushes a classifier scorer configuration to the Gauge API.
 
         Args:
             slug (str): Slug identifier for the scorer. If it exists, the scorer will be updated.
@@ -412,7 +412,7 @@ class JudgmentClient(metaclass=SingletonMeta):
             str: The slug identifier of the saved scorer
 
         Raises:
-            JudgmentAPIError: If there's an error saving the scorer
+            GaugeAPIError: If there's an error saving the scorer
         """
         request_body = {
             "name": scorer.name,
@@ -426,20 +426,20 @@ class JudgmentClient(metaclass=SingletonMeta):
             json=request_body,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.judgment_api_key}",
+                "Authorization": f"Bearer {self.gauge_api_key}",
                 "X-Organization-Id": self.organization_id,
             },
             verify=True,
         )
 
         if response.status_code == 500:
-            raise JudgmentAPIError(
+            raise GaugeAPIError(
                 f"The server is temporarily unavailable. \
                                    Please try your request again in a few moments. \
                                    Error details: {response.json().get('detail', '')}"
             )
         elif response.status_code != 200:
-            raise JudgmentAPIError(
+            raise GaugeAPIError(
                 f"Failed to save classifier scorer: {response.json().get('detail', '')}"
             )
 

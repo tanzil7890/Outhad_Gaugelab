@@ -21,21 +21,21 @@ def valid_scorer_params():
         {"type": "faithfulness"},  # dict
     ],
 )
-def test_judgment_scorer_invalid_score_type(invalid_score_type):
-    """Test creating JudgmentScorer with invalid score_type values"""
+def test_gauge_scorer_invalid_score_type(invalid_score_type):
+    """Test creating GaugeScorer with invalid score_type values"""
     with pytest.raises(ValidationError) as exc_info:
         APIScorerConfig(threshold=0.8, score_type=invalid_score_type)
 
     assert "Input should be" in str(exc_info.value)
 
 
-def test_judgment_scorer_invalid_string_value():
-    """Test creating JudgmentScorer with invalid string value"""
+def test_gauge_scorer_invalid_string_value():
+    """Test creating GaugeScorer with invalid string value"""
     with pytest.raises(ValidationError):
         APIScorerConfig(threshold=0.8, score_type="INVALID_METRIC")
 
 
-def test_judgment_scorer_threshold_validation():
+def test_gauge_scorer_threshold_validation():
     """Test threshold validation"""
     # Test float values
     scorer = APIScorerConfig(threshold=0.5, score_type=APIScorerType.FAITHFULNESS)

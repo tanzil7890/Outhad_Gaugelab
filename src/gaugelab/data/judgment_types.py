@@ -9,13 +9,13 @@ from typing import Annotated, Any, Dict, List, Optional, Union
 from pydantic import BaseModel, Field
 
 
-class ValidationErrorJudgmentType(BaseModel):
+class ValidationErrorGaugeType(BaseModel):
     loc: Annotated[List[Union[str, int]], Field(title="Location")]
     msg: Annotated[str, Field(title="Message")]
     type: Annotated[str, Field(title="Error Type")]
 
 
-class ScorerDataJudgmentType(BaseModel):
+class ScorerDataGaugeType(BaseModel):
     name: Annotated[str, Field(title="Name")]
     threshold: Annotated[float, Field(title="Threshold")]
     success: Annotated[bool, Field(title="Success")]
@@ -31,7 +31,7 @@ class ScorerDataJudgmentType(BaseModel):
     ] = None
 
 
-class ScorerConfigJudgmentType(BaseModel):
+class ScorerConfigGaugeType(BaseModel):
     score_type: Annotated[str, Field(title="Score Type")]
     name: Annotated[Optional[str], Field(title="Name")] = None
     threshold: Annotated[Optional[float], Field(title="Threshold")] = 0.5
@@ -42,7 +42,7 @@ class ScorerConfigJudgmentType(BaseModel):
     kwargs: Annotated[Optional[Dict[str, Any]], Field(title="Kwargs")] = None
 
 
-class TraceUsageJudgmentType(BaseModel):
+class TraceUsageGaugeType(BaseModel):
     prompt_tokens: Annotated[Optional[int], Field(title="Prompt Tokens")] = None
     completion_tokens: Annotated[Optional[int], Field(title="Completion Tokens")] = None
     cache_creation_input_tokens: Annotated[
@@ -62,7 +62,7 @@ class TraceUsageJudgmentType(BaseModel):
     model_name: Annotated[Optional[str], Field(title="Model Name")] = None
 
 
-class ToolJudgmentType(BaseModel):
+class ToolGaugeType(BaseModel):
     tool_name: Annotated[str, Field(title="Tool Name")]
     parameters: Annotated[Optional[Dict[str, Any]], Field(title="Parameters")] = None
     agent_name: Annotated[Optional[str], Field(title="Agent Name")] = None
@@ -75,13 +75,13 @@ class ToolJudgmentType(BaseModel):
     require_all: Annotated[Optional[bool], Field(title="Require All")] = None
 
 
-class HTTPValidationErrorJudgmentType(BaseModel):
+class HTTPValidationErrorGaugeType(BaseModel):
     detail: Annotated[
-        Optional[List[ValidationErrorJudgmentType]], Field(title="Detail")
+        Optional[List[ValidationErrorGaugeType]], Field(title="Detail")
     ] = None
 
 
-class TraceSpanJudgmentType(BaseModel):
+class TraceSpanGaugeType(BaseModel):
     span_id: Annotated[str, Field(title="Span Id")]
     trace_id: Annotated[str, Field(title="Trace Id")]
     function: Annotated[str, Field(title="Function")]
@@ -92,13 +92,13 @@ class TraceSpanJudgmentType(BaseModel):
     inputs: Annotated[Optional[Dict[str, Any]], Field(title="Inputs")] = None
     error: Annotated[Optional[Dict[str, Any]], Field(title="Error")] = None
     output: Annotated[Any, Field(title="Output")] = None
-    usage: Optional[TraceUsageJudgmentType] = None
+    usage: Optional[TraceUsageGaugeType] = None
     duration: Annotated[Optional[float], Field(title="Duration")] = None
     annotation: Annotated[Optional[List[Dict[str, Any]]], Field(title="Annotation")] = (
         None
     )
     expected_tools: Annotated[
-        Optional[List[ToolJudgmentType]], Field(title="Expected Tools")
+        Optional[List[ToolGaugeType]], Field(title="Expected Tools")
     ] = None
     additional_metadata: Annotated[
         Optional[Dict[str, Any]], Field(title="Additional Metadata")
@@ -112,7 +112,7 @@ class TraceSpanJudgmentType(BaseModel):
     update_id: Annotated[Optional[int], Field(title="Update Id")] = 1
 
 
-class ExampleJudgmentType(BaseModel):
+class ExampleGaugeType(BaseModel):
     input: Annotated[Optional[Union[str, Dict[str, Any]]], Field(title="Input")] = None
     actual_output: Annotated[
         Optional[Union[str, List[str]]], Field(title="Actual Output")
@@ -131,7 +131,7 @@ class ExampleJudgmentType(BaseModel):
         default_factory=list
     )
     expected_tools: Annotated[
-        Optional[List[ToolJudgmentType]], Field(title="Expected Tools")
+        Optional[List[ToolGaugeType]], Field(title="Expected Tools")
     ] = Field(default_factory=list)
     name: Annotated[Optional[str], Field(title="Name")] = None
     example_id: Annotated[str, Field(title="Example Id")]
@@ -142,12 +142,12 @@ class ExampleJudgmentType(BaseModel):
     dataset_id: Annotated[Optional[str], Field(title="Dataset Id")] = None
 
 
-class TraceJudgmentType(BaseModel):
+class TraceGaugeType(BaseModel):
     trace_id: Annotated[str, Field(title="Trace Id")]
     name: Annotated[str, Field(title="Name")]
     created_at: Annotated[str, Field(title="Created At")]
     duration: Annotated[float, Field(title="Duration")]
-    trace_spans: Annotated[List[TraceSpanJudgmentType], Field(title="Trace Spans")]
+    trace_spans: Annotated[List[TraceSpanGaugeType], Field(title="Trace Spans")]
     overwrite: Annotated[Optional[bool], Field(title="Overwrite")] = False
     offline_mode: Annotated[Optional[bool], Field(title="Offline Mode")] = False
     rules: Annotated[Optional[Dict[str, Any]], Field(title="Rules")] = Field(
@@ -164,27 +164,27 @@ class TraceJudgmentType(BaseModel):
     update_id: Annotated[Optional[int], Field(title="Update Id")] = 1
 
 
-class ScoringResultJudgmentType(BaseModel):
+class ScoringResultGaugeType(BaseModel):
     success: Annotated[bool, Field(title="Success")]
     scorers_data: Annotated[
-        Optional[List[ScorerDataJudgmentType]], Field(title="Scorers Data")
+        Optional[List[ScorerDataGaugeType]], Field(title="Scorers Data")
     ]
     name: Annotated[Optional[str], Field(title="Name")] = None
     data_object: Annotated[
-        Optional[Union[TraceSpanJudgmentType, ExampleJudgmentType]],
+        Optional[Union[TraceSpanGaugeType, ExampleGaugeType]],
         Field(title="Data Object"),
     ] = None
     trace_id: Annotated[Optional[str], Field(title="Trace Id")] = None
     run_duration: Annotated[Optional[float], Field(title="Run Duration")] = None
 
 
-class TraceRunJudgmentType(BaseModel):
+class TraceRunGaugeType(BaseModel):
     project_name: Annotated[Optional[str], Field(title="Project Name")] = None
     eval_name: Annotated[Optional[str], Field(title="Eval Name")] = None
-    traces: Annotated[List[TraceJudgmentType], Field(title="Traces")]
-    scorers: Annotated[List[ScorerConfigJudgmentType], Field(title="Scorers")]
+    traces: Annotated[List[TraceGaugeType], Field(title="Traces")]
+    scorers: Annotated[List[ScorerConfigGaugeType], Field(title="Scorers")]
     model: Annotated[str, Field(title="Model")]
-    judgment_api_key: Annotated[Optional[str], Field(title="Judgment Api Key")] = None
+    gauge_api_key: Annotated[Optional[str], Field(title="Gauge Api Key")] = None
     append: Annotated[Optional[bool], Field(title="Append")] = False
     override_existing_eval_run_name: Annotated[
         Optional[bool], Field(title="Override Existing Eval Run Name")
@@ -193,13 +193,13 @@ class TraceRunJudgmentType(BaseModel):
     tools: Annotated[Optional[List[Dict[str, Any]]], Field(title="Tools")] = None
 
 
-class JudgmentEvalJudgmentType(BaseModel):
+class GaugeEvalGaugeType(BaseModel):
     project_name: Annotated[Optional[str], Field(title="Project Name")] = None
     eval_name: Annotated[Optional[str], Field(title="Eval Name")] = None
-    examples: Annotated[List[ExampleJudgmentType], Field(title="Examples")]
-    scorers: Annotated[List[ScorerConfigJudgmentType], Field(title="Scorers")]
+    examples: Annotated[List[ExampleGaugeType], Field(title="Examples")]
+    scorers: Annotated[List[ScorerConfigGaugeType], Field(title="Scorers")]
     model: Annotated[str, Field(title="Model")]
-    judgment_api_key: Annotated[Optional[str], Field(title="Judgment Api Key")] = None
+    gauge_api_key: Annotated[Optional[str], Field(title="Gauge Api Key")] = None
     append: Annotated[Optional[bool], Field(title="Append")] = False
     override_existing_eval_run_name: Annotated[
         Optional[bool], Field(title="Override Existing Eval Run Name")
@@ -207,8 +207,8 @@ class JudgmentEvalJudgmentType(BaseModel):
     trace_span_id: Annotated[Optional[str], Field(title="Trace Span Id")] = None
 
 
-class EvalResultsJudgmentType(BaseModel):
-    results: Annotated[List[ScoringResultJudgmentType], Field(title="Results")]
+class EvalResultsGaugeType(BaseModel):
+    results: Annotated[List[ScoringResultGaugeType], Field(title="Results")]
     run: Annotated[
-        Union[TraceRunJudgmentType, JudgmentEvalJudgmentType], Field(title="Run")
+        Union[TraceRunGaugeType, GaugeEvalGaugeType], Field(title="Run")
     ]

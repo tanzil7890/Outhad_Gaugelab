@@ -14,10 +14,10 @@ class EvaluationRun(BaseModel):
         project_name (str): The name of the project the evaluation results belong to
         eval_name (str): A name for this evaluation run
         examples (List[Example]): The examples to evaluate
-        scorers (List[Union[JudgmentScorer, BaseScorer]]): A list of scorers to use for evaluation
+        scorers (List[Union[GaugeScorer, BaseScorer]]): A list of scorers to use for evaluation
         model (str): The model used as a judge when using LLM as a Judge
         metadata (Optional[Dict[str, Any]]): Additional metadata to include for this evaluation run, e.g. comments, dataset name, purpose, etc.
-        judgment_api_key (Optional[str]): The API key for running evaluations on the Judgment API
+        gauge_api_key (Optional[str]): The API key for running evaluations on the Gauge API
     """
 
     organization_id: Optional[str] = None
@@ -28,7 +28,7 @@ class EvaluationRun(BaseModel):
     model: Optional[str] = "gpt-4.1"
     trace_span_id: Optional[str] = None
     # API Key will be "" until user calls client.run_eval(), then API Key will be set
-    judgment_api_key: Optional[str] = ""
+    gauge_api_key: Optional[str] = ""
     override: Optional[bool] = False
     append: Optional[bool] = False
 

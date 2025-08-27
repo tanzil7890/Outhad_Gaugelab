@@ -1,10 +1,10 @@
 from typing import List, Union
 from gaugelab.data import ScorerData, Example
 from gaugelab.data.trace import TraceSpan
-from gaugelab.data.judgment_types import ScoringResultJudgmentType
+from gaugelab.data.gauge_types import ScoringResultGaugeType
 
 
-class ScoringResult(ScoringResultJudgmentType):
+class ScoringResult(ScoringResultGaugeType):
     """
     A ScoringResult contains the output of one or more scorers applied to a single example.
     Ie: One input, one actual_output, one expected_output, etc..., and 1+ scorer (Faithfulness, Hallucination, Summarization, etc...)

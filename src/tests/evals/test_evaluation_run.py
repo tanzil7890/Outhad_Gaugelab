@@ -121,7 +121,7 @@ def test_validate_model():
             model=123,
         )
 
-    # Test GaugelabJudge with APIJudgmentScorer
+    # Test GaugelabJudge with APIGaugeScorer
     with pytest.raises(
         ValueError,
     ):

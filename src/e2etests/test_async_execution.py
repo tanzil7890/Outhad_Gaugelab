@@ -10,9 +10,9 @@ from gaugelab.scorers import AnswerCorrectnessScorer, AnswerRelevancyScorer
 
 # Skip these tests if API keys aren't set
 pytestmark = pytest.mark.skipif(
-    os.environ.get("JUDGMENT_API_KEY") is None
-    or os.environ.get("JUDGMENT_ORG_ID") is None,
-    reason="JUDGMENT_API_KEY and JUDGMENT_ORG_ID environment variables must be set to run e2e tests",
+    os.environ.get("GAUGE_API_KEY") is None
+    or os.environ.get("GAUGE_ORG_ID") is None,
+    reason="GAUGE_API_KEY and GAUGE_ORG_ID environment variables must be set to run e2e tests",
 )
 
 

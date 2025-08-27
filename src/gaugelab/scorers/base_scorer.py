@@ -15,9 +15,9 @@ from gaugelab.common.logger import gaugelab_logger
 
 class BaseScorer(BaseModel):
     """
-    If you want to create a scorer that does not fall under any of the ready-made Judgment scorers,
+    If you want to create a scorer that does not fall under any of the ready-made Gauge scorers,
     you can create a custom scorer by extending this class. This is best used for special use cases
-    where none of Judgment's scorers are suitable.
+    where none of Gauge's scorers are suitable.
     """
 
     score_type: str  # type of your scorer (Faithfulness, PromptScorer)

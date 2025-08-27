@@ -18,23 +18,23 @@ class EvalDataset:
     traces: List[Trace]
     _alias: Union[str, None] = field(default=None)
     _id: Union[str, None] = field(default=None)
-    judgment_api_key: str = field(default="")
+    gauge_api_key: str = field(default="")
     organization_id: str = field(default="")
 
     def __init__(
         self,
-        judgment_api_key: str = os.getenv("JUDGMENT_API_KEY", ""),
-        organization_id: str = os.getenv("JUDGMENT_ORG_ID", ""),
+        gauge_api_key: str = os.getenv("GAUGE_API_KEY", ""),
+        organization_id: str = os.getenv("GAUGE_ORG_ID", ""),
         examples: Optional[List[Example]] = None,
         traces: Optional[List[Trace]] = None,
     ):
-        if not judgment_api_key:
-            gaugelab_logger.error("No judgment_api_key provided")
+        if not gauge_api_key:
+            gaugelab_logger.error("No gauge_api_key provided")
         self.examples = examples or []
         self.traces = traces or []
         self._alias = None
         self._id = None
-        self.judgment_api_key = judgment_api_key
+        self.gauge_api_key = gauge_api_key
         self.organization_id = organization_id
 
     def add_from_json(self, file_path: str) -> None:
@@ -117,7 +117,7 @@ class EvalDataset:
         # Pandas naturally reads numbers in data files as ints, not strings (can lead to unexpected behavior)
         df = pd.read_csv(file_path, dtype={"trace_id": str}, sep=primary_delimiter)
         """
-        The user should pass in a dict mapping from Judgment Example headers to their custom defined headers.
+        The user should pass in a dict mapping from Gauge Example headers to their custom defined headers.
         Available headers for Example objects are as follows:
 
         "input", "actual_output", "expected_output", "context", \

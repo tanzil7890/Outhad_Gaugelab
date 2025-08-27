@@ -4,7 +4,7 @@ Test to implement a PromptScorer
 Toy example in this case to determine the sentiment
 """
 
-from gaugelab.judgment_client import JudgmentClient
+from gaugelab.gauge_client import GaugeClient
 from gaugelab.data import Example
 from gaugelab.judges import TogetherJudge
 from gaugelab.scorers import ClassifierScorer
@@ -52,7 +52,7 @@ def test_prompt_scoring(project_name: str):
     import os
 
     # Then test using client.run_evaluation()
-    client = JudgmentClient(judgment_api_key=os.getenv("JUDGMENT_API_KEY"))
+    client = GaugeClient(gauge_api_key=os.getenv("GAUGE_API_KEY"))
     results = client.run_evaluation(
         examples=[pos_example, neg_example],
         scorers=[scorer],

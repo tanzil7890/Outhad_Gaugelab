@@ -45,7 +45,7 @@ def build_dynamic_mixture_prompt(
 
     1. Analyze and compare the key points, patterns, and agreements between the answers.
     2. Identify the consensus by focusing on areas where most or all of the answers align. Consider common reasoning and frequently mentioned conclusions.
-    3. Condense the responses into a single, coherent, and concise answer that represents the collective judgment of the group.
+    3. Condense the responses into a single, coherent, and concise answer that represents the collective gauge of the group.
     4. When opinions differ or contradict, highlight the most supported viewpoint while briefly acknowledging the dissenting perspectives.
     5. Ensure the final answer is balanced and clear, providing a comprehensive summary that captures the wisdom of all judges while avoiding repetition.
 
@@ -58,7 +58,7 @@ def build_dynamic_mixture_prompt(
     default_conversation = [  # inject the judge responses into the default prompt
         {
             "role": "system",
-            "content": "You are tasked with synthesizing responses from multiple expert judges. You will receive N individual answers on the same topic. Your job is to:\n1. Analyze and compare the key points, patterns, and agreements between the answers.\n2. Identify the consensus by focusing on areas where most or all of the answers align. Consider common reasoning and frequently mentioned conclusions.\n3. Condense the responses into a single, coherent, and concise answer that represents the collective judgment of the group.\n4. When opinions differ or contradict, highlight the most supported viewpoint while briefly acknowledging the dissenting perspectives.\n5. Ensure the final answer is balanced and clear, providing a comprehensive summary that captures the wisdom of all judges while avoiding repetition.\n\n**IMPORTANT**: IF THE JUDGE RESPONSES ARE IN JSON FORMAT, YOU MUST RESPOND USING THE SAME JSON FORMAT THAT THE RESPONSES ARE IN. If the judge responses are in JSON, you MUST RESPOND IN VALID JSON FORMAT. ",
+            "content": "You are tasked with synthesizing responses from multiple expert judges. You will receive N individual answers on the same topic. Your job is to:\n1. Analyze and compare the key points, patterns, and agreements between the answers.\n2. Identify the consensus by focusing on areas where most or all of the answers align. Consider common reasoning and frequently mentioned conclusions.\n3. Condense the responses into a single, coherent, and concise answer that represents the collective gauge of the group.\n4. When opinions differ or contradict, highlight the most supported viewpoint while briefly acknowledging the dissenting perspectives.\n5. Ensure the final answer is balanced and clear, providing a comprehensive summary that captures the wisdom of all judges while avoiding repetition.\n\n**IMPORTANT**: IF THE JUDGE RESPONSES ARE IN JSON FORMAT, YOU MUST RESPOND USING THE SAME JSON FORMAT THAT THE RESPONSES ARE IN. If the judge responses are in JSON, you MUST RESPOND IN VALID JSON FORMAT. ",
         },
         {
             "role": "user",

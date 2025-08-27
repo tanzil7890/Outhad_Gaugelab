@@ -1,7 +1,7 @@
 import pytest
 from gaugelab.common.exceptions import (
     MissingTestCaseParamsError,
-    JudgmentAPIError,
+    GaugeAPIError,
     InvalidJudgeModelError,
 )
 
@@ -12,12 +12,12 @@ def test_missing_test_case_params_error():
         raise MissingTestCaseParamsError()
 
 
-def test_judgment_api_error():
-    """Test JudgmentAPIError message handling"""
+def test_gauge_api_error():
+    """Test GaugeAPIError message handling"""
     error_message = "API connection failed"
     try:
-        raise JudgmentAPIError(error_message)
-    except JudgmentAPIError as e:
+        raise GaugeAPIError(error_message)
+    except GaugeAPIError as e:
         assert str(e) == error_message
         assert e.message == error_message
 

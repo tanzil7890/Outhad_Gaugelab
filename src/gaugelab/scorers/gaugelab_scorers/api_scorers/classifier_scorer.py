@@ -5,7 +5,7 @@ from typing import List, Mapping, Optional, Dict, Any
 
 class ClassifierScorer(APIScorerConfig):
     """
-    In the Judgment backend, this scorer is implemented as a PromptScorer that takes
+    In the Gauge backend, this scorer is implemented as a PromptScorer that takes
     1. a system role that may involve the Example object
     2. options for scores on the example
 

@@ -118,7 +118,7 @@ def read_file(file_path: str) -> str:
         return file.read()
 
 
-def validate_api_key(judgment_api_key: str):
+def validate_api_key(gauge_api_key: str):
     """
     Validates that the user api key is valid
     """
@@ -126,7 +126,7 @@ def validate_api_key(judgment_api_key: str):
         f"{ROOT_API}/auth/validate_api_key/",
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {judgment_api_key}",
+            "Authorization": f"Bearer {gauge_api_key}",
         },
         json={},  # Empty body now
         verify=True,
