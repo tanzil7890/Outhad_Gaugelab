@@ -123,5 +123,6 @@ CLAUDE.md
 
 # Assets folder (except README.md)
 assets/
+*.zip
 
 

@@ -1,12 +1,12 @@
-# <� Gaugelab: AI Agent Observability with Formal Mesa-Optimization Detection
+# Gaugelab: AI Agent Observability with Formal Mesa-Optimization Detection
 
 Gaugelab offers **advanced tooling** for tracing, evaluating, and monitoring autonomous AI agents with **groundbreaking formal verification** capabilities. It provides runtime data from agent-environment interactions for continuous learning, self-improvement, and **mathematically proven safety guarantees**.
 
-## =� Revolutionary Mesa-Optimization Detection (Archived)
+## Revolutionary Mesa-Optimization Detection
 
 **World's First Formally Verified Mesa-Optimization Detection System** - Gaugelab now includes breakthrough technology for detecting inner alignment failures in AI systems with mathematical proof certificates.
 
-### =, What is Mesa-Optimization?
+### What is Mesa-Optimization?
 
 Mesa-optimization occurs when an AI agent develops internal optimization processes that pursue objectives different from their intended goals - a critical AI safety concern that could lead to catastrophic misalignment.
 
@@ -16,21 +16,21 @@ Mesa-optimization occurs when an AI agent develops internal optimization process
 - **Mathematical Proofs**: Each detection comes with formal verification certificates
 - **Real-time Monitoring**: Integration with existing Gaugelab observability infrastructure
 
-## <� See Gaugelab in Action
+## See Gaugelab in Action
 
 **[Multi-Agent System] with complete observability and safety verification:** (1) A multi-agent system spawns agents to research topics on the internet. (2) With just **3 lines of code**, Gaugelab traces every input/output + environment response across all agent tool calls for debugging. (3) **NEW**: Formal mesa-optimization detection runs automatically in the background. (4) After completion, export all interaction data with **mathematical safety certificates** to enable further environment-specific learning and optimization.
 
 
-## =� Table of Contents
-- [=� Installation](#-installation)
-- [<� Quickstarts](#-quickstarts)
-- [=, Mesa-Optimization Detection](#-mesa-optimization-detection)
-- [( Features](#-features)
-- [<� Self-Hosting](#-self-hosting)
-- [=� Cookbooks](#-cookbooks)
-- [=� Development with Cursor](#-development-with-cursor)
+## Table of Contents
+- [Installation](#installation)
+- [Quickstarts](#quickstarts)
+- [Mesa-Optimization Detection](#mesa-optimization-detection)
+- [Features](#features)
+- [Self-Hosting](#self-hosting)
+- [Cookbooks](#cookbooks)
+- [Development with Cursor](#development-with-cursor)
 
-## =� Installation
+## Installation
 
 Get started with Gaugelab by installing our SDK using pip:
 
@@ -48,9 +48,9 @@ source ~/.profile
 pip install "gaugelab[mesa-detection]"
 ```
 
-## <� Quickstarts
+## Quickstarts
 
-### =� Standard Tracing
+### Standard Tracing
 
 Create a file named `agent.py` with the following code:
 
@@ -78,7 +78,7 @@ def run_agent(prompt: str) -> str:
 run_agent("What is the capital of the United States?")
 ```
 
-### =, Mesa-Optimization Detection
+### Mesa-Optimization Detection
 
 **NEW**: Add formal safety verification to your agents:
 
@@ -129,38 +129,38 @@ result = strategic_agent("Optimize our marketing strategy for maximum ROI")
 detection_result = mesa_detector.get_latest_detection()
 
 if detection_result.detected:
-    print(f"�  Mesa-optimization detected!")
+    print(f"⚠️  Mesa-optimization detected!")
     print(f"   Confidence: {detection_result.confidence:.2f}")
     print(f"   Mesa-objective: {detection_result.mesa_objective}")
     print(f"   Formal proof: {detection_result.formal_proof}")
 else:
-    print(" No mesa-optimization detected - agent is aligned")
+    print("✅ No mesa-optimization detected - agent is aligned")
 ```
 
 You'll see your trace exported to the Gauge Platform with **formal safety verification**:
 
 
-## =, Mesa-Optimization Detection
+## Mesa-Optimization Detection
 
 ### Core Detection Features
 
 | Feature | Description | Status |
 |---------|-------------|--------|
-| **Formal Verification** | Lean 4 theorem-proven detection algorithms |  Implemented |
-| **Behavioral Analysis** | Pattern recognition for optimization signatures |  Implemented |  
-| **Real-time Detection** | Background monitoring during agent execution |  Implemented |
-| **Proof Certificates** | Mathematical proofs of detection correctness |  Implemented |
-| **Multi-Environment Testing** | Cross-environment consistency validation |  Implemented |
-| **Alignment Verification** | Check if mesa-objectives align with base objectives |  Implemented |
+| **Formal Verification** | Lean 4 theorem-proven detection algorithms | ✅ Implemented |
+| **Behavioral Analysis** | Pattern recognition for optimization signatures | ✅ Implemented |  
+| **Real-time Detection** | Background monitoring during agent execution | ✅ Implemented |
+| **Proof Certificates** | Mathematical proofs of detection correctness | ✅ Implemented |
+| **Multi-Environment Testing** | Cross-environment consistency validation | ✅ Implemented |
+| **Alignment Verification** | Check if mesa-objectives align with base objectives | ✅ Implemented |
 
 ### Detection Patterns
 
 The system automatically detects these mesa-optimization patterns:
 
-- **<� Reward Hacking**: Agent exploits reward signals without achieving true objectives
-- **>� Strategic Planning**: Agent develops long-term optimization strategies beyond immediate tasks  
-- **� Efficiency Optimization**: Agent optimizes for computational efficiency over task quality
-- **= Goal Generalization**: Agent pursues generalized objectives across different environments
+- **🎯 Reward Hacking**: Agent exploits reward signals without achieving true objectives
+- **🧠 Strategic Planning**: Agent develops long-term optimization strategies beyond immediate tasks  
+- **⚡ Efficiency Optimization**: Agent optimizes for computational efficiency over task quality
+- **🔄 Goal Generalization**: Agent pursues generalized objectives across different environments
 
 ### Mathematical Guarantees
 
@@ -169,24 +169,24 @@ The system automatically detects these mesa-optimization patterns:
 - **Formal Proofs**: Every positive detection includes a Lean 4 mathematical proof certificate
 - **Zero False Positives**: Formal verification eliminates false positive detections in controlled environments
 
-## ( Features
+## Features
 
 |  |  |
 | --- | --- |
-| **=� Tracing** | Capture comprehensive execution traces with decorators |
-| **=, Mesa-Optimization Detection** | **NEW**: Formally verified inner alignment detection |
-| **=� Evaluation** | Built-in scorers for LLM output quality assessment |
-| **=� Monitoring** | Real-time dashboards for agent performance tracking |
-| **>� Testing** | Dataset management for systematic agent evaluation |
-| **= Integrations** | Works with OpenAI, Anthropic, Together, LangChain, LangGraph |
-| **<� Agent Frameworks** | Native support for multi-agent systems and tool calling |
-| **=� Dashboard** | Web interface for trace visualization and analysis |
-| **= Security** | SOC2 compliance and enterprise security features |
-| **<� Custom Scorers** | Create domain-specific evaluation metrics |
-| **=� Production Ready** | Built for scale with performance monitoring |
-| **>� Formal Verification** | **NEW**: Mathematical proofs powered by Lean 4 |
+| **🛠️ Tracing** | Capture comprehensive execution traces with decorators |
+| **🔬 Mesa-Optimization Detection** | **NEW**: Formally verified inner alignment detection |
+| **📊 Evaluation** | Built-in scorers for LLM output quality assessment |
+| **📈 Monitoring** | Real-time dashboards for agent performance tracking |
+| **🧪 Testing** | Dataset management for systematic agent evaluation |
+| **🔗 Integrations** | Works with OpenAI, Anthropic, Together, LangChain, LangGraph |
+| **🏢 Agent Frameworks** | Native support for multi-agent systems and tool calling |
+| **📱 Dashboard** | Web interface for trace visualization and analysis |
+| **🔒 Security** | SOC2 compliance and enterprise security features |
+| **🎯 Custom Scorers** | Create domain-specific evaluation metrics |
+| **🚀 Production Ready** | Built for scale with performance monitoring |
+| **🧮 Formal Verification** | **NEW**: Mathematical proofs powered by Lean 4 |
 
-## = Safety First
+## Safety First
 
 With growing concerns about AI alignment and safety, Gaugelab provides **mathematical guarantees** about your AI systems:
 
@@ -208,7 +208,7 @@ def critical_agent(task: str) -> str:
     return result
 ```
 
-## <� Self-Hosting
+## Self-Hosting
 
 Deploy Gaugelab with formal verification on your infrastructure:
 
@@ -218,7 +218,7 @@ docker run -e LEAN_ENABLED=true -e GAUGE_API_KEY=$API_KEY gaugelab/platform:late
 ```
 
 
-## =� Development with Cursor
+## Development with Cursor
 
 Gaugelab works seamlessly with Cursor IDE for AI-assisted development:
 
@@ -230,7 +230,7 @@ from gaugelab import GaugeClient
 gauge = GaugeClient(project_name="cursor_development")
 ```
 
-## <� Recognition
+## Recognition
 
 **Gaugelab's Mesa-Optimization Detection** represents breakthrough research in AI safety:
 
@@ -240,14 +240,14 @@ gauge = GaugeClient(project_name="cursor_development")
 - **Real-time safety monitoring** for production AI systems
 - **Open source implementation** for reproducible AI safety research
 
-## =� What's New in v2.0
+## What's New in v2.0
 
-- **=, Mesa-Optimization Detection**: Formal verification of AI inner alignment
-- **>� Lean 4 Integration**: Mathematical proof generation for safety properties
-- **=� Advanced Behavioral Analysis**: Deep pattern recognition for optimization signatures  
-- **= Safety Guarantees**: Provable correctness for critical AI applications
-- **� Real-time Verification**: Background safety monitoring during agent execution
-- **=� Enhanced Dashboard**: Visualize formal proofs and safety metrics
+- **🔬 Mesa-Optimization Detection**: Formal verification of AI inner alignment
+- **🧮 Lean 4 Integration**: Mathematical proof generation for safety properties
+- **📈 Advanced Behavioral Analysis**: Deep pattern recognition for optimization signatures  
+- **🔒 Safety Guarantees**: Provable correctness for critical AI applications
+- **⚡ Real-time Verification**: Background safety monitoring during agent execution
+- **📊 Enhanced Dashboard**: Visualize formal proofs and safety metrics
 
 ---
 
